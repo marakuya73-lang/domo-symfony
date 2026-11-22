@@ -27,7 +27,8 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringContainsString('The best view in the world', $html);
         self::assertStringContainsString('Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros', $html);
         self::assertStringContainsString('Domo Xangô · The best view in the world | Chapada dos Veadeiros', $html);
-        self::assertSame(3, substr_count($html, 'Visitas somente com reserva confirmada. Por favor, não venha sem agendar.'));
+        self::assertStringContainsString('Visitas somente com reserva confirmada. Por favor, não apareça sem agendar.', $html);
+        self::assertStringNotContainsString('não venha sem agendar', $html);
         self::assertStringContainsString("Visits by confirmed reservation only. Please don't arrive without booking.", $html);
         self::assertStringContainsString('DOMO GEODÉSICO NA CHAPADA', $html);
         self::assertStringNotContainsString('Your Conscious Pause', $html);
@@ -35,46 +36,88 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringContainsString('A partir de R$ 550/noite', $html);
         self::assertStringContainsString('Check-in 14h–18h', $html);
         self::assertStringContainsString('Check-in 2–6 pm', $html);
-        self::assertStringContainsString('Oito metros', $html);
+        self::assertStringNotContainsString('Oito metros', $html);
+        self::assertStringNotContainsString('Eight metres', $html);
+        self::assertStringContainsString('Geometria sagrada, sozinho diante do vale. Só seu.', $html);
+        self::assertStringContainsString('Sacred geometry, alone before the valley. All yours.', $html);
         self::assertStringContainsString('até 7 com cama queen extra', $html);
         self::assertStringContainsString('extra queen bed', $html);
         self::assertStringNotContainsString('Uma rainha', $html);
         self::assertStringContainsString('23', $html);
         self::assertStringContainsString('Anjos e Arcanjos', $html);
-        self::assertStringContainsString('TripAdvisor', $html);
-        self::assertStringContainsString('The Best View in the World.', $html);
+        self::assertStringNotContainsString('TripAdvisor', $html);
         self::assertStringContainsString('Pular para reservas', $html);
         self::assertStringContainsString('Skip to booking', $html);
         self::assertStringContainsString('prefers-reduced-motion', $html);
         self::assertStringContainsString('340 m² de madeira suspensa sobre o vale.', $html);
         self::assertStringContainsString('340 m² of wood suspended over the valley.', $html);
         self::assertStringNotContainsString('Trezentos e quarenta metros', $html);
+        self::assertStringContainsString('O que você busca?', $html);
+        self::assertStringContainsString('What are you looking for?', $html);
         self::assertStringContainsString('Por onde você quer começar?', $html);
         self::assertStringContainsString('Where would you like to begin?', $html);
         self::assertStringContainsString('A vida no domo', $html);
         self::assertStringContainsString('Ver outro canto', $html);
-        self::assertStringContainsString('Seguir a jornada', $html);
+        self::assertStringContainsString('Voltar às escolhas', $html);
+        self::assertStringContainsString('Back to choices', $html);
+        self::assertStringContainsString('Descobrir o domo', $html);
+        self::assertStringContainsString('Discover the dome', $html);
+        self::assertStringContainsString('Descobrir retiros', $html);
+        self::assertStringNotContainsString('Seguir a jornada', $html);
         self::assertStringContainsString('href="#chapter-dome"', $html);
         self::assertStringContainsString('href="#chapter-bath"', $html);
+        self::assertStringContainsString('data-branch="estadia"', $html);
+        self::assertStringContainsString('data-branch="retiro"', $html);
+        self::assertStringContainsString('data-branch="jornada"', $html);
         self::assertStringContainsString('https://concierge.domoxango.com.br/', $html);
         self::assertStringContainsString('>Concierge<', $html);
         self::assertStringContainsString('data-src="/media/experience/09b_falls_aerial.mp4"', $html);
-        self::assertStringContainsString('data-placeholder="bath"', $html);
+        self::assertStringContainsString('data-src="/media/experience/v5/path-4498.mp4"', $html);
+        self::assertStringNotContainsString('data-placeholder="bath"', $html);
+        self::assertStringContainsString('/media/experience/v5/bath-1.jpg', $html);
+        self::assertStringContainsString('/media/experience/v5/breakfast-deck.jpg', $html);
+        self::assertStringContainsString('/media/experience/v5/breakfast-sunset.jpg', $html);
+        self::assertStringContainsString('/media/experience/v5/night-milkyway.jpg', $html);
+        self::assertStringContainsString('/media/experience/v5/night-moon-palms.jpg', $html);
+        self::assertStringNotContainsString('/media/experience/v5/breakfast.jpg', $html);
+        self::assertStringNotContainsString('retreat-8', $html);
+        self::assertStringNotContainsString('4523', $html);
         self::assertStringNotContainsString('noindex', $html);
         $this->assertCanonicalPointsAtHome($client, $crawler);
         self::assertStringContainsString('https://wa.me/5561998159838?text=', $html);
         self::assertStringContainsString('https://www.airbnb.com/h/domoxango', $html);
         self::assertStringContainsString('+55 61 99815-9838', $html);
+        self::assertStringContainsString('https://www.rajaaram.com.br', $html);
+        self::assertStringContainsString('https://wa.me/5562999932232', $html);
+        self::assertStringContainsString('+55 62 99993-2232', $html);
+        self::assertStringContainsString('5561998159838', $crawler->filter('a.wa-float')->attr('href'));
+        self::assertStringNotContainsString('5562999932232', $crawler->filter('a.wa-float')->attr('href'));
+        $jornada = $crawler->filter('#branch-jornada')->html();
+        self::assertStringContainsString('08a_stairs.mp4', $jornada);
+        self::assertStringContainsString('5562999932232', $jornada);
+        self::assertStringNotContainsString('5561998159838', $jornada);
+        $retiro = $crawler->filter('#branch-retiro')->html();
+        self::assertStringContainsString('5561998159838', $retiro);
+        self::assertStringNotContainsString('5562999932232', $retiro);
+        $story = $crawler->filter('.story')->html();
+        self::assertStringContainsString('path-4498.mp4', $story);
+        self::assertStringNotContainsString('08a_stairs', $story);
+        $hubAt = strpos($html, 'id="hub-break"');
+        $reservasAt = strpos($html, 'id="reservas"');
+        $branchAt = strpos($html, 'id="branch-estadia"');
+        self::assertIsInt($hubAt);
+        self::assertLessThan($reservasAt, $hubAt);
+        self::assertLessThan($branchAt, $reservasAt);
         self::assertStringNotContainsString('Silêncio para dois', $html);
         self::assertDoesNotMatchRegularExpression('/<video\b[^>]*\ssrc=/', $html);
         self::assertStringContainsString('data-src="/media/experience/01_hero.mp4"', $html);
         self::assertStringContainsString('data-src="/media/experience/09_falls.mp4"', $html);
 
         self::assertSame(
-            ['01', '02a', '08a', '03a', '04a', '04b', '04c', '03b', '02b', '06', 'bath', 'breakfast', '08b', '08c', '08d', '09', '09b', '10a', 'gatherings', '10b'],
-            $crawler->filter('[data-scene]')->extract(['data-scene']),
+            ['01', '02a', 'path', '03a'],
+            $crawler->filter('.story [data-scene]')->extract(['data-scene']),
         );
-        foreach (['04b', '04c', '10a', 'bath', 'breakfast', 'gatherings'] as $still) {
+        foreach (['04b', '04c', '10a', 'bath-1', 'breakfast', 'breakfast-sunset', 'night-milkyway', 'night-moon-palms'] as $still) {
             self::assertSame('38', $crawler->filter('[data-scene="'.$still.'"]')->attr('data-travel'));
             self::assertSame('1', $crawler->filter('[data-scene="'.$still.'"]')->attr('data-brief'));
         }
@@ -129,7 +172,17 @@ final class ExperienceControllerTest extends WebTestCase
             '09_falls.mp4',
             '09b_falls_aerial.mp4',
             '10a_moon.mp4',
-            'posters/bath-placeholder.jpg',
+            'v5/path-4498.mp4',
+            'v5/path-4498.jpg',
+            'v5/bath-1.jpg',
+            'v5/bath-2.jpg',
+            'v5/bath-3.jpg',
+            'v5/breakfast-deck.jpg',
+            'v5/breakfast-sunset.jpg',
+            'v5/night-milkyway.jpg',
+            'v5/night-moon-palms.jpg',
+            'v5/retreat-1.jpg',
+            'v5/journey-1.jpg',
             'posters/01_hero-start.jpg',
             'posters/09_falls-mid.jpg',
             'stills/hero_end.jpg',
@@ -138,6 +191,7 @@ final class ExperienceControllerTest extends WebTestCase
         foreach ($files as $file) {
             self::assertFileExists($root.$file, $file);
         }
+        self::assertFileDoesNotExist($root.'v5/retreat-8.jpg');
     }
 
     private function assertCanonicalPointsAtHome(KernelBrowser $client, Crawler $crawler): void

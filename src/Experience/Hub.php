@@ -13,6 +13,9 @@ final readonly class HubCard
         public string $image,
         public string $altPt,
         public string $altEn,
+        public ?string $linePt = null,
+        public ?string $lineEn = null,
+        public ?string $branch = null,
     ) {
     }
 }
@@ -27,6 +30,9 @@ final readonly class Hub
         public string $titlePt,
         public string $titleEn,
         public array $cards,
+        public ?string $ledePt = null,
+        public ?string $ledeEn = null,
+        public ?string $image = null,
     ) {
     }
 }

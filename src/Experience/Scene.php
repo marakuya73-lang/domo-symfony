@@ -41,6 +41,8 @@ final readonly class Scene
         public ?string $nextHref = null,
         public ?string $noticePt = null,
         public ?string $noticeEn = null,
+        public bool $choices = false,
+        public ?string $cta = null,
     ) {
     }
 }

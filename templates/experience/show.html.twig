@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <a class="skip" href="#reservas">
+        <a class="skip" href="#reservas" data-action="experience#leaveBranch">
             <span class="t-pt">Pular para reservas →</span><span class="t-en">Skip to booking →</span>
         </a>
 
@@ -89,136 +89,7 @@
     </header>
 
     <div class="story" data-experience-target="story">
-        {% for beat in beats %}
-            {% if beat.type == 'hub' %}
-                {% set hub = beat.hub %}
-                <section class="hub" id="{{ hub.id }}" data-hub>
-                    <div class="hub__inner">
-                        <h2 class="script hub__title"><span class="t-pt">{{ hub.titlePt }}</span><span class="t-en">{{ hub.titleEn }}</span></h2>
-                        <div class="hub__cards">
-                            {% for card in hub.cards %}
-                                <a class="hub-card" href="{{ card.href }}">
-                                    <img src="{{ asset('media/experience/' ~ card.image) }}" alt="{{ card.altPt }}" data-alt-pt="{{ card.altPt }}" data-alt-en="{{ card.altEn }}" width="640" height="360" loading="lazy" decoding="async">
-                                    <span class="hub-card__title"><span class="t-pt">{{ card.titlePt }}</span><span class="t-en">{{ card.titleEn }}</span></span>
-                                </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </section>
-            {% else %}
-                {% set scene = beat.scene %}
-            <section
-                class="scene scene--{{ scene.align }}{{ scene.hero ? ' scene--hero is-current' : '' }}{{ scene.finale ? ' scene--finale' : '' }}{{ scene.placeholder ? ' scene--placeholder' : '' }}"
-                id="{{ scene.anchor ?: scene.id }}"
-                data-scene="{{ scene.id }}"
-                data-experience-target="scene"
-                data-travel="{{ scene.travel }}"
-                {% if scene.hero %}data-hero="1"{% endif %}
-                {% if scene.finale %}data-finale="1"{% endif %}
-                {% if scene.brief %}data-brief="1"{% endif %}
-                {% if scene.placeholder %}data-placeholder="bath"{% endif %}
-                aria-label="{{ scene.altPt }}"
-                data-alt-pt="{{ scene.altPt }}"
-                data-alt-en="{{ scene.altEn }}"
-            >
-                <div class="scene__pin">
-                    <img
-                        class="scene__still"
-                        src="{{ asset('media/experience/' ~ scene.still) }}"
-                        alt="{{ scene.altPt }}"
-                        data-alt-pt="{{ scene.altPt }}"
-                        data-alt-en="{{ scene.altEn }}"
-                        width="1280"
-                        height="720"
-                        decoding="async"
-                        {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                    >
-                    {% if scene.video %}
-                    <video
-                        class="scene__video"
-                        data-experience-target="video"
-                        data-src="{{ asset('media/experience/' ~ scene.video) }}"
-                        poster="{{ asset('media/experience/' ~ scene.poster) }}"
-                        muted
-                        playsinline
-                        preload="none"
-                        disablepictureinpicture
-                        disableremoteplayback
-                        tabindex="-1"
-                        aria-hidden="true"
-                    ></video>
-                    {% endif %}
-                    <div class="scene__shade" aria-hidden="true"></div>
-
-                    {% if scene.titlePt or scene.bodyPt or scene.kickerPt or scene.hero or scene.finale or scene.backHub %}
-                        <div class="scene__copy" data-copy>
-                            {% if scene.kickerPt %}
-                                <p class="kicker"><span class="t-pt">{{ scene.kickerPt }}</span><span class="t-en">{{ scene.kickerEn }}</span></p>
-                            {% endif %}
-
-                            {% if scene.hero %}
-                                <p class="view-line"><span class="t-pt">A melhor vista do mundo</span><span class="t-en">The best view in the world</span></p>
-                            {% endif %}
-
-                            {% if scene.titlePt %}
-                                {% if scene.hero %}
-                                    <h1 class="script"><span class="t-pt">{{ scene.titlePt }}</span><span class="t-en">{{ scene.titleEn }}</span></h1>
-                                {% else %}
-                                    <h2 class="script"><span class="t-pt">{{ scene.titlePt }}</span><span class="t-en">{{ scene.titleEn }}</span></h2>
-                                {% endif %}
-                            {% endif %}
-
-                            {% if scene.bodyPt %}
-                                <p class="body"><span class="t-pt">{{ scene.bodyPt }}</span><span class="t-en">{{ scene.bodyEn }}</span></p>
-                            {% endif %}
-                            {% if scene.smallPt %}
-                                <p class="small"><span class="t-pt">{{ scene.smallPt }}</span><span class="t-en">{{ scene.smallEn }}</span></p>
-                            {% endif %}
-                            {% if scene.noticePt %}
-                                <p class="notice"><span class="t-pt">{{ scene.noticePt }}</span><span class="t-en">{{ scene.noticeEn }}</span></p>
-                            {% endif %}
-
-                            {% if scene.pricePt %}
-                                <p class="price"><span class="t-pt">{{ scene.pricePt }}</span><span class="t-en">{{ scene.priceEn }}</span></p>
-                            {% endif %}
-                            {% if scene.metaPt %}
-                                <p class="meta"><span class="t-pt">{{ scene.metaPt }}</span><span class="t-en">{{ scene.metaEn }}</span></p>
-                            {% endif %}
-
-                            {% if scene.hero or scene.finale %}
-                                <a class="pill js-wa" href="{{ links.stayPt }}" data-wa-pt="{{ links.stayPt }}" data-wa-en="{{ links.stayEn }}" target="_blank" rel="noopener noreferrer">
-                                    <span class="t-pt">RESERVAR O DOMO</span><span class="t-en">BOOK THE DOME</span>
-                                </a>
-                            {% endif %}
-
-                            {% if scene.finale %}
-                                <p class="quiet-links">
-                                    <a class="js-wa" href="{{ links.stayPt }}" data-wa-pt="{{ links.stayPt }}" data-wa-en="{{ links.stayEn }}" target="_blank" rel="noopener noreferrer">WhatsApp {{ links.phone }}</a>
-                                    <span aria-hidden="true">·</span>
-                                    <a href="{{ links.airbnb }}" target="_blank" rel="noopener noreferrer">Airbnb</a>
-                                </p>
-                            {% endif %}
-                            {% if scene.id == 'gatherings' %}
-                                <p class="quiet-links">
-                                    <a class="js-wa" href="{{ links.eventPt }}" data-wa-pt="{{ links.eventPt }}" data-wa-en="{{ links.eventEn }}" target="_blank" rel="noopener noreferrer"><span class="t-pt">Reservar pelo WhatsApp</span><span class="t-en">Book on WhatsApp</span></a>
-                                </p>
-                            {% endif %}
-                            {% if scene.backHub %}
-                                <p class="chapter-nav">
-                                    <a href="#{{ scene.backHub }}"><span class="t-pt">Ver outro canto ↺</span><span class="t-en">See another corner ↺</span></a>
-                                    <a href="{{ scene.nextHref }}"><span class="t-pt">Seguir a jornada →</span><span class="t-en">Continue the journey →</span></a>
-                                </p>
-                            {% endif %}
-
-                        </div>
-                    {% endif %}
-                    {% if scene.finePt %}
-                        <p class="fine"><span class="t-pt">{{ scene.finePt }}</span><span class="t-en">{{ scene.fineEn }}</span></p>
-                    {% endif %}
-                </div>
-            </section>
-            {% endif %}
-        {% endfor %}
+        {% include 'experience/_beats.html.twig' with {beats: beats} %}
     </div>
 
     <section id="reservas" class="reservas" data-experience-target="reservas" tabindex="-1">
@@ -230,7 +101,7 @@
                     <span class="t-en">Here you don't just stay. You slow down, breathe deeply and remember what matters.</span>
                 </p>
                 <p class="paper-price"><span class="t-pt">A partir de R$ 550/noite</span><span class="t-en">From R$ 550/night</span></p>
-                <p class="paper-meta"><span class="t-pt">Check-in 14h–18h · 5 hóspedes (até 7 com cama queen extra)</span><span class="t-en">Check-in 2–6 pm · 5 guests (up to 7 with an extra queen bed)</span></p>
+                <p class="paper-meta"><span class="t-pt">Check-in 14h–18h · 5 hóspedes (até 7 com cama queen extra, em reserva direta)</span><span class="t-en">Check-in 2–6 pm · 5 guests (up to 7 with an extra queen bed, when you book directly)</span></p>
                 <a class="pill js-wa" href="{{ links.stayPt }}" data-wa-pt="{{ links.stayPt }}" data-wa-en="{{ links.stayEn }}" target="_blank" rel="noopener noreferrer">
                     <span class="t-pt">RESERVAR O DOMO</span><span class="t-en">BOOK THE DOME</span>
                 </a>
@@ -238,6 +109,9 @@
                     <a class="js-wa" href="{{ links.stayPt }}" data-wa-pt="{{ links.stayPt }}" data-wa-en="{{ links.stayEn }}" target="_blank" rel="noopener noreferrer">WhatsApp {{ links.phone }}</a>
                     <span aria-hidden="true">·</span>
                     <a href="{{ links.airbnb }}" target="_blank" rel="noopener noreferrer">Airbnb</a>
+                </p>
+                <p class="paper-links">
+                    <a href="#hub-break"><span class="t-pt">Voltar às escolhas ↺</span><span class="t-en">Back to choices ↺</span></a>
                 </p>
             </div>
 
@@ -262,8 +136,8 @@
                 <div>
                     <dt><span class="t-pt">Bom saber</span><span class="t-en">Good to know</span></dt>
                     <dd>
-                        <span class="t-pt">14 km de Alto Paraíso, carro alto recomendado, trilha de 100 m; não recomendado para crianças pequenas (deck sem guarda-corpo). Visitas somente com reserva confirmada. Por favor, não venha sem agendar.</span>
-                        <span class="t-en">14 km from Alto Paraíso, high-clearance car recommended, 100 m path; not recommended for young children (deck without railings). Visits by confirmed reservation only. Please don't arrive without booking.</span>
+                        <span class="t-pt">14 km de Alto Paraíso, carro alto recomendado, trilha de 100 m em subida; não recomendado para crianças pequenas (deck sem guarda-corpo). Visitas somente com reserva confirmada. Por favor, não apareça sem agendar.</span>
+                        <span class="t-en">14 km from Alto Paraíso, high-clearance car recommended, a 100 m uphill path; not recommended for young children (deck without railings). Visits by confirmed reservation only. Please don't arrive without booking.</span>
                     </dd>
                 </div>
             </dl>
@@ -271,5 +145,11 @@
             <p class="colophon">Domo Xangô · Alto Paraíso de Goiás · Chapada dos Veadeiros</p>
         </div>
     </section>
+
+    {% for branch in branches %}
+        <div class="branch" id="branch-{{ branch.id }}" data-branch="{{ branch.id }}" aria-label="{{ branch.labelPt }}" data-alt-pt="{{ branch.labelPt }}" data-alt-en="{{ branch.labelEn }}">
+            {% include 'experience/_beats.html.twig' with {beats: branch.beats} %}
+        </div>
+    {% endfor %}
 </main>
 {% endblock %}

@@ -13,7 +13,10 @@ export default class extends Controller {
     connect() {
         this.onKey = this.onKey.bind(this);
         this.onResize = this.onResize.bind(this);
-        this.currentIndex = 0;
+        this.currentScene = null;
+        this.activeBranch = null;
+        this.branchTriggers = [];
+        this.mainTriggers = [];
         this.scrolly = document.documentElement.classList.contains('is-scrolly');
         this.applyLang(document.documentElement.lang?.startsWith('en') ? 'en' : 'pt', false);
 
@@ -36,6 +39,7 @@ export default class extends Controller {
         if (this.raf) cancelAnimationFrame(this.raf);
         if (this.onScrollSync) window.removeEventListener('scroll', this.onScrollSync);
         window.removeEventListener('resize', this.onResize);
+        this.killBranchTriggers();
         this.ctx?.revert();
     }
 
@@ -48,20 +52,19 @@ export default class extends Controller {
         this.lastH = window.innerHeight;
 
         this.onScrollSync = () => this.syncFromScroll();
+        const storyScenes = [...this.storyTarget.querySelectorAll('[data-scene]')];
         this.ctx = gsap.context(() => {
-            this.sceneTargets.forEach((scene, index) => {
-                ScrollTrigger.create({
-                    trigger: scene,
-                    start: 'top top',
-                    end: 'bottom bottom',
-                    onToggle: (self) => {
-                        if (self.isActive) this.activate(index);
-                    },
-                    onUpdate: (self) => {
-                        scene._targetProgress = self.progress;
-                    },
-                });
-            });
+            this.mainTriggers = storyScenes.map((scene) => ScrollTrigger.create({
+                trigger: scene,
+                start: 'top top',
+                end: 'bottom bottom',
+                onToggle: (self) => {
+                    if (self.isActive && !this.activeBranch) this.activate(scene);
+                },
+                onUpdate: (self) => {
+                    scene._targetProgress = self.progress;
+                },
+            }));
         }, this.element);
 
         window.addEventListener('scroll', this.onScrollSync, { passive: true });
@@ -74,50 +77,50 @@ export default class extends Controller {
 
     tick() {
         this.raf = requestAnimationFrame(() => this.tick());
-        const index = this.currentIndex ?? 0;
-        if (index < 0) return;
-        const scene = this.sceneTargets[index];
+        const scene = this.currentScene;
         if (!scene) return;
         const target = scene._targetProgress ?? 0;
         const shown = scene._shownProgress ?? target;
         const next = shown + (target - shown) * 0.35;
         scene._shownProgress = Math.abs(target - next) < 0.0015 ? target : next;
-        this.onProgress(scene, index, scene._shownProgress);
+        this.onProgress(scene, scene._shownProgress);
     }
 
     syncFromScroll() {
+        const root = this.activeBranch || this.storyTarget;
         const y = window.scrollY;
-        const hubs = this.element.querySelectorAll('[data-hub]');
-        let onHub = false;
-        hubs.forEach((hub) => {
-            if (y >= hub.offsetTop - 1 && y < hub.offsetTop + hub.offsetHeight - 1) onHub = true;
+        const blocks = root.querySelectorAll('[data-hub], [data-fork]');
+        let onBlock = false;
+        blocks.forEach((block) => {
+            const top = this.docTop(block);
+            if (y >= top - 1 && y < top + block.offsetHeight - 1) onBlock = true;
         });
-        this.element.classList.toggle('is-on-hub', onHub);
-        if (onHub) {
-            this.sceneTargets.forEach((scene) => scene.classList.remove('is-current'));
-            this.currentIndex = -1;
-            if (this.hasReservasTarget) {
-                const top = this.reservasTarget.getBoundingClientRect().top;
-                this.element.classList.toggle('is-on-paper', top < window.innerHeight * 0.62);
-            }
-            return;
-        }
-        let index = this.sceneTargets.length - 1;
-        for (let i = 0; i < this.sceneTargets.length; i++) {
-            const scene = this.sceneTargets[i];
-            if (y < scene.offsetTop + scene.offsetHeight) {
-                index = i;
-                break;
-            }
-        }
-        const scene = this.sceneTargets[index];
-        const travel = Math.max(1, scene.offsetHeight - window.innerHeight);
-        scene._targetProgress = Math.min(1, Math.max(0, (y - scene.offsetTop) / travel));
-        if (index !== this.currentIndex) this.activate(index);
-        if (this.hasReservasTarget) {
+        this.element.classList.toggle('is-on-hub', onBlock);
+        if (this.activeBranch || !this.hasReservasTarget) {
+            this.element.classList.remove('is-on-paper');
+        } else {
             const top = this.reservasTarget.getBoundingClientRect().top;
             this.element.classList.toggle('is-on-paper', top < window.innerHeight * 0.62);
         }
+        if (onBlock) {
+            this.sceneTargets.forEach((scene) => scene.classList.remove('is-current'));
+            this.currentScene = null;
+            return;
+        }
+        const scenes = this.liveFrames();
+        if (!scenes.length) return;
+        let scene = scenes[scenes.length - 1];
+        for (const candidate of scenes) {
+            const top = this.docTop(candidate);
+            if (y < top + candidate.offsetHeight) {
+                scene = candidate;
+                break;
+            }
+        }
+        const top = this.docTop(scene);
+        const travel = Math.max(1, scene.offsetHeight - window.innerHeight);
+        scene._targetProgress = Math.min(1, Math.max(0, (y - top) / travel));
+        if (scene !== this.currentScene) this.activate(scene);
     }
 
     layout() {
@@ -139,22 +142,31 @@ export default class extends Controller {
         ScrollTrigger.refresh();
     }
 
-    activate(index) {
-        this.currentIndex = index;
-        this.sceneTargets.forEach((scene, i) => scene.classList.toggle('is-current', i === index));
-        this.warmAround(index);
+    activate(scene) {
+        if (!scene) return;
+        if (this.activeBranch && !this.activeBranch.contains(scene)) return;
+        if (!this.activeBranch && this.hasStoryTarget && !this.storyTarget.contains(scene)) return;
+        this.currentScene = scene;
+        this.sceneTargets.forEach((node) => node.classList.toggle('is-current', node === scene));
+        this.warmAround(scene);
     }
 
-    warmAround(index) {
-        this.sceneTargets.forEach((scene, i) => {
-            const video = scene.querySelector('video[data-src]');
+    warmAround(scene) {
+        const frames = this.liveFrames();
+        const index = frames.indexOf(scene);
+        this.element.querySelectorAll('video[data-src]').forEach((video) => {
+            const owner = video.closest('[data-scene]');
+            if (!owner || !frames.includes(owner)) this.unmount(video);
+        });
+        frames.forEach((node, i) => {
+            const video = node.querySelector('video[data-src]');
             if (!video) return;
-            if (Math.abs(i - index) <= 1) this.mount(video);
+            if (index >= 0 && Math.abs(i - index) <= 1) this.mount(video);
             else this.unmount(video);
         });
     }
 
-    onProgress(scene, index, progress) {
+    onProgress(scene, progress) {
         const hero = scene.dataset.hero === '1';
         const brief = scene.dataset.brief === '1';
         const visible = hero || brief ? progress < 0.92 : progress > 0.07 && progress < 0.86;
@@ -166,7 +178,8 @@ export default class extends Controller {
             if (still) gsap.set(still, { scale: 1.08 - progress * 0.06, transformOrigin: 'center center' });
         }
 
-        const upcoming = this.sceneTargets[index + 1]?.querySelector('video[data-src]');
+        const frames = this.liveFrames();
+        const upcoming = frames[frames.indexOf(scene) + 1]?.querySelector('video[data-src]');
         if (progress > 0.5 && upcoming) this.mount(upcoming);
 
         const video = scene.querySelector('video[data-src]');
@@ -320,7 +333,7 @@ export default class extends Controller {
 
     setLang(event) {
         this.applyLang(event.currentTarget.dataset.lang, true);
-        if (this.scrolly && this.currentIndex != null) this.warmAround(this.currentIndex);
+        if (this.scrolly && this.currentScene) this.warmAround(this.currentScene);
     }
 
     applyLang(lang, remember) {
@@ -375,6 +388,116 @@ export default class extends Controller {
     }
 
     onKey(event) {
-        if (event.key === 'Escape') this.closeBook();
+        if (event.key !== 'Escape') return;
+        if (this.hasBookMenuTarget && !this.bookMenuTarget.hidden) {
+            this.closeBook();
+            return;
+        }
+        if (this.activeBranch) this.setBranch(null);
+    }
+
+    openBranch(event) {
+        event.preventDefault();
+        const id = event.currentTarget?.dataset?.branch;
+        if (!id) return;
+        this.closeBook();
+        this.returnFocus = event.currentTarget;
+        this.setBranch(id);
+    }
+
+    leaveBranch(event) {
+        if (!this.activeBranch) return;
+        event.preventDefault();
+        const href = event.currentTarget.getAttribute('href');
+        this.setBranch(null, { restore: false });
+        if (!href || href.charAt(0) !== '#') return;
+        const target = document.getElementById(href.slice(1));
+        if (!target) return;
+        requestAnimationFrame(() => {
+            target.scrollIntoView({ behavior: 'auto', block: 'start' });
+        });
+    }
+
+    jump(event) {
+        const href = event.currentTarget.getAttribute('href');
+        if (!href || href.charAt(0) !== '#') return;
+        const root = this.activeBranch || this.element;
+        const target = root.querySelector(`#${CSS.escape(href.slice(1))}`);
+        if (!target) return;
+        event.preventDefault();
+        window.scrollTo({ top: this.docTop(target), behavior: this.scrolly ? 'smooth' : 'auto' });
+    }
+
+    setBranch(id, options = {}) {
+        const restore = options.restore !== false;
+        if (this.activeBranch) {
+            this.killBranchTriggers();
+            this.activeBranch.querySelectorAll('video[data-src]').forEach((video) => this.unmount(video));
+            this.activeBranch.classList.remove('is-open');
+            this.activeBranch = null;
+            document.documentElement.classList.remove('is-branch-open');
+        }
+        if (!id) {
+            this.mainTriggers?.forEach((trigger) => trigger.enable());
+            if (this.scrolly) {
+                this.layout();
+                ScrollTrigger.refresh();
+            }
+            if (restore && this.savedScroll != null) window.scrollTo(0, this.savedScroll);
+            if (this.scrolly) this.syncFromScroll();
+            return;
+        }
+        const branch = this.element.querySelector(`#branch-${CSS.escape(id)}`);
+        if (!branch) return;
+        this.savedScroll = window.scrollY;
+        this.storyTarget?.querySelectorAll('video[data-src]').forEach((video) => this.unmount(video));
+        this.sceneTargets.forEach((scene) => scene.classList.remove('is-current'));
+        this.currentScene = null;
+        this.activeBranch = branch;
+        document.documentElement.classList.add('is-branch-open');
+        branch.classList.add('is-open');
+        this.mainTriggers?.forEach((trigger) => trigger.disable());
+        window.scrollTo(0, 0);
+        if (!this.scrolly) return;
+        this.layout();
+        void branch.offsetHeight;
+        this.mountBranchTriggers(branch);
+        ScrollTrigger.refresh();
+        this.syncFromScroll();
+    }
+
+    mountBranchTriggers(branch) {
+        this.killBranchTriggers();
+        this.branchTriggers = [...branch.querySelectorAll('[data-scene]')].map((scene) => ScrollTrigger.create({
+            trigger: scene,
+            start: 'top top',
+            end: 'bottom bottom',
+            onToggle: (self) => {
+                if (self.isActive && this.activeBranch) this.activate(scene);
+            },
+            onUpdate: (self) => {
+                scene._targetProgress = self.progress;
+            },
+        }));
+    }
+
+    killBranchTriggers() {
+        this.branchTriggers?.forEach((trigger) => trigger.kill());
+        this.branchTriggers = [];
+    }
+
+    liveFrames() {
+        const root = this.activeBranch || this.storyTarget;
+        return [...root.querySelectorAll('[data-scene]')];
+    }
+
+    docTop(node) {
+        let y = 0;
+        let el = node;
+        while (el && el !== document.body && el !== document.documentElement) {
+            y += el.offsetTop;
+            el = el.offsetParent;
+        }
+        return y;
     }
 }

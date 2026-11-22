@@ -18,6 +18,8 @@ final readonly class BookingLinks
         public string $massageEn,
         public string $airbnb,
         public string $rajaaram,
+        public string $rajaaramWa,
+        public string $rajaaramPhone,
         public string $phone,
         public string $concierge,
     ) {
