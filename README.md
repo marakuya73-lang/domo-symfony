@@ -8,3 +8,6 @@ Stack: Symfony 8.1, PHP 8.4+, Twig, Doctrine ORM, AssetMapper.
 composer install
 symfony serve
 ```
+
+The scroll-driven preview lives at `/experiencia` (alias `/preview`). It does not replace `/`.
+Clips and posters are in `public/media/experience/`.
