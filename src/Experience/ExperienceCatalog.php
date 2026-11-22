@@ -1,0 +1,262 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Experience;
+
+/**
+ * Approved scene order and overlay copy for the /experiencia preview.
+ *
+ * Portuguese lines follow the v3 text. English is a translation of those lines,
+ * with the longer draft used only for the practical section. The headline
+ * "Silêncio para dois" is intentionally absent.
+ *
+ * 10b_end.mp4 is the owner-approved end card with Portuguese titles already
+ * burned into the picture. Portuguese scroll mode plays that clip. English and
+ * reduced-motion use the clean aerial still plus live HTML, so the button,
+ * WhatsApp and Airbnb stay real links in both languages.
+ */
+final class ExperienceCatalog
+{
+    private const WHATSAPP = 'https://wa.me/5561998159838';
+
+    /**
+     * @return list<Scene>
+     */
+    public function scenes(): array
+    {
+        return [
+            new Scene(
+                id: '01',
+                video: '01_hero.mp4',
+                still: 'posters/01_hero-mid.jpg',
+                poster: 'posters/01_hero-start.jpg',
+                align: 'center',
+                travel: 180,
+                altPt: 'Domo geodésico entre a mata, com a serra da Chapada ao fundo',
+                altEn: 'Geodesic dome in the forest, with the Chapada ridge behind it',
+                kickerPt: 'DOMO GEODÉSICO NA CHAPADA',
+                kickerEn: 'GEODESIC DOME IN THE CHAPADA',
+                titlePt: 'Sua Pausa Consciente',
+                titleEn: 'Your Conscious Pause',
+                hero: true,
+            ),
+            new Scene(
+                id: '02a',
+                video: '02a_hill.mp4',
+                still: 'posters/02a_hill-mid.jpg',
+                poster: 'posters/02a_hill-start.jpg',
+                align: 'left',
+                travel: 140,
+                altPt: 'Cerrado e a serra na chegada ao domo',
+                altEn: 'Cerrado and the ridge on the way to the dome',
+                titlePt: 'A cidade fica para trás.',
+                titleEn: 'The city falls away.',
+                bodyPt: 'Cerrado, cristais, o céu da Chapada.',
+                bodyEn: 'Cerrado, crystals, the Chapada sky.',
+            ),
+            new Scene(
+                id: '02b',
+                video: '02b_pyramid.mp4',
+                still: 'posters/02b_pyramid-mid.jpg',
+                poster: 'posters/02b_pyramid-start.jpg',
+                align: 'right',
+                travel: 170,
+                altPt: 'Pirâmide de vitral com uma cama, no alto da colina',
+                altEn: 'Stained-glass pyramid with a bed, high on the hill',
+                titlePt: 'A pirâmide de vitral te espera.',
+                titleEn: 'The stained-glass pyramid is waiting for you.',
+                bodyPt: 'Uma cama, o vale inteiro aos seus pés.',
+                bodyEn: 'A bed, the whole valley at your feet.',
+            ),
+            new Scene(
+                id: '03a',
+                video: '03a_orbit.mp4',
+                still: 'posters/03a_orbit-mid.jpg',
+                poster: 'posters/03a_orbit-start.jpg',
+                align: 'left',
+                travel: 160,
+                altPt: 'Deck de madeira com o domo, o gazebo e a vista da serra',
+                altEn: 'Wooden deck with the dome, the gazebo and the mountain view',
+                titlePt: 'O deck é seu. O pôr do sol também.',
+                titleEn: 'The deck is yours. So is the sunset.',
+                bodyPt: 'Trezentos e quarenta metros de madeira e horizonte.',
+                bodyEn: 'Three hundred and forty metres of wood and horizon.',
+            ),
+            new Scene(
+                id: '03b',
+                video: '03b_view.mp4',
+                still: 'posters/03b_view-mid.jpg',
+                poster: 'posters/03b_view-start.jpg',
+                align: 'right',
+                travel: 140,
+                altPt: 'O deck e a serra vistos a partir do domo',
+                altEn: 'The deck and the ridge seen from the dome',
+                titlePt: 'Oito metros de domo. Cinco hóspedes — ou sete, se você pedir.',
+                titleEn: 'Eight metres of dome. Five guests — or seven, if you ask.',
+                bodyPt: 'Uma rainha no domo, outra na pirâmide, e um solteiro.',
+                bodyEn: 'A queen in the dome, another in the pyramid, and a single.',
+            ),
+            new Scene(
+                id: '04a',
+                video: '04a_enter.mp4',
+                still: 'posters/04a_enter-mid.jpg',
+                poster: 'posters/04a_enter-start.jpg',
+                align: 'center',
+                travel: 70,
+                altPt: 'A porta do domo se abrindo',
+                altEn: 'The dome door opening',
+            ),
+            new Scene(
+                id: '04b',
+                video: '04b_5005.mp4',
+                still: 'posters/04b_5005-mid.jpg',
+                poster: 'posters/04b_5005-start.jpg',
+                align: 'center',
+                travel: 130,
+                altPt: 'Cama dentro do domo, de frente para a Chapada',
+                altEn: 'Bed inside the dome, facing the Chapada',
+                titlePt: 'Acorde com a serra aos seus pés.',
+                titleEn: 'Wake with the mountains at your feet.',
+            ),
+            new Scene(
+                id: '04c',
+                video: '04c_5004.mp4',
+                still: 'posters/04c_5004-mid.jpg',
+                poster: 'posters/04c_5004-start.jpg',
+                align: 'left',
+                travel: 130,
+                altPt: 'A cama e a luz da manhã no quarto do domo',
+                altEn: 'The bed and the morning light in the dome bedroom',
+                titlePt: 'A cama encara a Chapada. O sol nasce aqui.',
+                titleEn: 'The bed faces the Chapada. The sun rises here.',
+                bodyPt: 'Lá fora, o banho debaixo do céu.',
+                bodyEn: 'Outside, a bath under the open sky.',
+            ),
+            new Scene(
+                id: '06',
+                video: '06_kitchen.mp4',
+                still: 'posters/06_kitchen-mid.jpg',
+                poster: 'posters/06_kitchen-start.jpg',
+                align: 'right',
+                travel: 170,
+                altPt: 'Cozinha ao ar livre com pilares de bambu e a serra ao fundo',
+                altEn: 'Open-air kitchen with bamboo pillars and the ridge behind',
+                titlePt: 'Cozinhe com a serra à mesa.',
+                titleEn: 'Cook with the mountains at the table.',
+                bodyPt: 'A cozinha é sua. O café da manhã, se você quiser. O transfer, também.',
+                bodyEn: 'The kitchen is yours. Breakfast, if you want it. The transfer, too.',
+            ),
+            new Scene(
+                id: '08a',
+                video: '08a_stairs.mp4',
+                still: 'posters/08a_stairs-mid.jpg',
+                poster: 'posters/08a_stairs-start.jpg',
+                align: 'left',
+                travel: 90,
+                altPt: 'Escada de madeira descendo a colina',
+                altEn: 'Wooden stairs leading down the hill',
+                titlePt: 'Desça a colina.',
+                titleEn: 'Walk down the hill.',
+            ),
+            new Scene(
+                id: '08b',
+                video: '08b_sign.mp4',
+                still: 'posters/08b_sign-mid.jpg',
+                poster: 'posters/08b_sign-start.jpg',
+                align: 'center',
+                travel: 100,
+                altPt: 'Placa no caminho entre a mata',
+                altEn: 'A sign on the path through the trees',
+                titlePt: 'Tem mais.',
+                titleEn: 'There\'s more.',
+            ),
+            new Scene(
+                id: '08c',
+                video: '08c_gate.mp4',
+                still: 'posters/08c_gate-mid.jpg',
+                poster: 'posters/08c_gate-start.jpg',
+                align: 'right',
+                travel: 110,
+                altPt: 'Portão de madeira na entrada do Rajaaram',
+                altEn: 'Wooden gate at the Rajaaram entrance',
+                titlePt: 'Rajaaram. Um santuário no mesmo chão.',
+                titleEn: 'Rajaaram. A sanctuary on the same ground.',
+            ),
+            new Scene(
+                id: '08d',
+                video: '08d_dome.mp4',
+                still: 'posters/08d_dome-mid.jpg',
+                poster: 'posters/08d_dome-start.jpg',
+                align: 'left',
+                travel: 140,
+                altPt: 'Domo do Rajaaram com a porta aberta para uma massagem',
+                altEn: 'The Rajaaram dome with the door open onto a massage',
+                titlePt: 'A massagem, se o corpo pedir.',
+                titleEn: 'A massage, if the body asks.',
+            ),
+            new Scene(
+                id: '09',
+                video: '09_falls.mp4',
+                still: 'posters/09_falls-mid.jpg',
+                poster: 'posters/09_falls-start.jpg',
+                align: 'right',
+                travel: 170,
+                altPt: 'Cachoeira Anjos e Arcanjos, a cerca de dez minutos',
+                altEn: 'Anjos e Arcanjos waterfall, about ten minutes away',
+                titlePt: 'A dez minutos, a água fria te espera.',
+                titleEn: 'Ten minutes away, the cold water is waiting.',
+                bodyPt: 'Anjos e Arcanjos. Dois véus, um rio.',
+                bodyEn: 'Anjos e Arcanjos. Two veils, one river.',
+            ),
+            new Scene(
+                id: '10a',
+                video: '10a_moon.mp4',
+                still: 'posters/10a_moon-mid.jpg',
+                poster: 'posters/10a_moon-start.jpg',
+                align: 'center',
+                travel: 130,
+                altPt: 'Lua sobre a serra, à noite',
+                altEn: 'Moon over the ridge at night',
+                titlePt: 'Quando a noite chega, o céu inteiro é seu.',
+                titleEn: 'When night arrives, the whole sky is yours.',
+                bodyPt: 'The Best View in the World. TripAdvisor.',
+                bodyEn: 'The Best View in the World. TripAdvisor.',
+            ),
+            new Scene(
+                id: '10b',
+                video: '10b_end.mp4',
+                still: 'stills/hero_end.jpg',
+                poster: 'stills/hero_end.jpg',
+                align: 'center',
+                travel: 160,
+                altPt: 'O domo e o deck ao entardecer, com a Chapada ao fundo',
+                altEn: 'The dome and the deck at dusk, with the Chapada behind',
+                titlePt: 'Seu lugar na Chapada',
+                titleEn: 'Your place in the Chapada',
+                pricePt: 'A partir de R$ 550/noite',
+                priceEn: 'From R$ 550/night',
+                metaPt: 'Check-in 14h–18h',
+                metaEn: 'Check-in 14:00–18:00',
+                finePt: 'Para um ritual ou um pedido de casamento, fale direto conosco. Até vinte e três.',
+                fineEn: 'For a ritual or a proposal, talk to us directly. Up to twenty-three.',
+                finale: true,
+            ),
+        ];
+    }
+
+    public function links(): BookingLinks
+    {
+        return new BookingLinks(
+            stayPt: self::WHATSAPP.'?text='.rawurlencode('Gostaria de reservar o Domo Xangô'),
+            stayEn: self::WHATSAPP.'?text='.rawurlencode('I would like to book Domo Xangô'),
+            eventPt: self::WHATSAPP.'?text='.rawurlencode('Gostaria de planejar um evento no Domo Xangô'),
+            eventEn: self::WHATSAPP.'?text='.rawurlencode('I would like to plan an event at Domo Xangô'),
+            massagePt: self::WHATSAPP.'?text='.rawurlencode('Gostaria de agendar uma massagem no Rajaaram'),
+            massageEn: self::WHATSAPP.'?text='.rawurlencode('I would like to book a massage at Rajaaram'),
+            airbnb: 'https://www.airbnb.com/h/domoxango',
+            rajaaram: 'https://rajaaram.com.br',
+            phone: '+55 61 99815-9838',
+        );
+    }
+}
