@@ -1,15 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Domo Xangô · Domo geodésico na Chapada dos Veadeiros{% endblock %}
-{% block title_attrs %} data-pt="Domo Xangô · Domo geodésico na Chapada dos Veadeiros" data-en="Domo Xangô · Geodesic dome in Chapada dos Veadeiros"{% endblock %}
+{% block title %}Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros{% endblock %}
+{% block title_attrs %} data-pt="Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros" data-en="Domo Xangô · The best view in the world | Chapada dos Veadeiros"{% endblock %}
 
 {% block meta %}
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Domo geodésico privativo em Alto Paraíso de Goiás, com deck de 340 m², pirâmide e a serra à frente. Hospedagem para 5 pessoas, até 7, e eventos para até 23. A partir de R$ 550/noite.">
+    <meta name="description" content="A melhor vista do mundo. Domo geodésico privativo em Alto Paraíso de Goiás, na Chapada dos Veadeiros. A partir de R$ 550/noite." data-pt="A melhor vista do mundo. Domo geodésico privativo em Alto Paraíso de Goiás, na Chapada dos Veadeiros. A partir de R$ 550/noite." data-en="The best view in the world. A private geodesic dome in Alto Paraíso de Goiás, Chapada dos Veadeiros. From R$ 550/night.">
     <link rel="canonical" href="{{ url('experience_home') }}">
     <meta property="og:url" content="{{ url('experience_home') }}">
-    <meta property="og:title" content="Domo Xangô · Domo geodésico na Chapada dos Veadeiros">
-    <meta property="og:description" content="Uma pausa consciente num domo geodésico de 8 m, em Alto Paraíso de Goiás. A partir de R$ 550/noite.">
+    <meta property="og:title" content="Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros">
+    <meta property="og:description" content="A melhor vista do mundo. Domo geodésico privativo em Alto Paraíso de Goiás, na Chapada dos Veadeiros.">
     <meta property="og:image" content="{{ absolute_url(asset('media/experience/posters/01_hero-mid.jpg')) }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,9 +35,7 @@
             var title = document.querySelector('title');
             if (title && title.dataset.en) title.textContent = title.dataset.en;
             var description = document.querySelector('meta[name="description"]');
-            if (description) {
-                description.setAttribute('content', 'A private 8 m geodesic dome in Alto Paraíso de Goiás, with a 340 m² deck, a glass pyramid and the Chapada in front of you. Stays for 5 guests, up to 7. Events for up to 23. From R$ 550/night.');
-            }
+            if (description && description.dataset.en) description.setAttribute('content', description.dataset.en);
         })();
     </script>
 {% endblock %}
@@ -158,6 +156,11 @@
                                 <p class="kicker"><span class="t-pt">{{ scene.kickerPt }}</span><span class="t-en">{{ scene.kickerEn }}</span></p>
                             {% endif %}
 
+                            {% if scene.hero %}
+                                <p class="view-line"><span class="t-pt">A melhor vista do mundo</span><span class="t-en">The best view in the world</span></p>
+                                <p class="view-credit"><span>TripAdvisor</span></p>
+                            {% endif %}
+
                             {% if scene.titlePt %}
                                 {% if scene.hero %}
                                     <h1 class="script"><span class="t-pt">{{ scene.titlePt }}</span><span class="t-en">{{ scene.titleEn }}</span></h1>
@@ -171,6 +174,9 @@
                             {% endif %}
                             {% if scene.smallPt %}
                                 <p class="small"><span class="t-pt">{{ scene.smallPt }}</span><span class="t-en">{{ scene.smallEn }}</span></p>
+                            {% endif %}
+                            {% if scene.noticePt %}
+                                <p class="notice"><span class="t-pt">{{ scene.noticePt }}</span><span class="t-en">{{ scene.noticeEn }}</span></p>
                             {% endif %}
 
                             {% if scene.pricePt %}
@@ -257,8 +263,8 @@
                 <div>
                     <dt><span class="t-pt">Bom saber</span><span class="t-en">Good to know</span></dt>
                     <dd>
-                        <span class="t-pt">14 km de Alto Paraíso, carro alto recomendado, trilha de 100 m; não recomendado para crianças pequenas (deck sem guarda-corpo).</span>
-                        <span class="t-en">14 km from Alto Paraíso, high-clearance car recommended, 100 m path; not recommended for young children (deck without railings).</span>
+                        <span class="t-pt">14 km de Alto Paraíso, carro alto recomendado, trilha de 100 m; não recomendado para crianças pequenas (deck sem guarda-corpo). Visitas somente com reserva confirmada. Por favor, não venha sem agendar.</span>
+                        <span class="t-en">14 km from Alto Paraíso, high-clearance car recommended, 100 m path; not recommended for young children (deck without railings). Visits by confirmed reservation only. Please don't arrive without booking.</span>
                     </dd>
                 </div>
             </dl>
