@@ -9,5 +9,5 @@ composer install
 symfony serve
 ```
 
-The scroll-driven preview lives at `/experiencia` (alias `/preview`). It does not replace `/`.
+The scroll-driven homepage is `/`. `/experiencia` and `/preview` serve the same page and canonicalise to `/`.
 Clips and posters are in `public/media/experience/`.
