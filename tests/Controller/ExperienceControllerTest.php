@@ -21,6 +21,12 @@ final class ExperienceControllerTest extends WebTestCase
         $html = (string) $client->getResponse()->getContent();
 
         self::assertSelectorTextContains('h1', 'Sua Pausa Consciente');
+        self::assertStringContainsString('A melhor vista do mundo', $html);
+        self::assertStringContainsString('The best view in the world', $html);
+        self::assertStringContainsString('Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros', $html);
+        self::assertStringContainsString('Domo Xangô · The best view in the world | Chapada dos Veadeiros', $html);
+        self::assertSame(3, substr_count($html, 'Visitas somente com reserva confirmada. Por favor, não venha sem agendar.'));
+        self::assertStringContainsString("Visits by confirmed reservation only. Please don't arrive without booking.", $html);
         self::assertStringContainsString('DOMO GEODÉSICO NA CHAPADA', $html);
         self::assertStringContainsString('Your Conscious Pause', $html);
         self::assertStringContainsString('GEODESIC DOME IN CHAPADA', $html);

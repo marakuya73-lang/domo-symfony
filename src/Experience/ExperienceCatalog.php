@@ -71,6 +71,8 @@ final class ExperienceCatalog
                 bodyEn: 'A hundred metres of forest path, and the world stays behind.',
                 smallPt: 'Traga mochila ou bagagem leve: a trilha é suave, mas rodinhas não gostam dela.',
                 smallEn: 'Bring a backpack or light bags: the path is gentle, but wheels don\'t love it.',
+                noticePt: 'Visitas somente com reserva confirmada. Por favor, não venha sem agendar.',
+                noticeEn: 'Visits by confirmed reservation only. Please don\'t arrive without booking.',
             )),
             Beat::scene(new Scene(
                 id: '03a',
@@ -330,6 +332,8 @@ final class ExperienceCatalog
                 titleEn: 'For a ritual, a circle, a "will you marry me?".',
                 bodyPt: 'Encontros espirituais para até 23 pessoas, sem álcool. Reserva direta pelo WhatsApp.',
                 bodyEn: 'Spiritual gatherings for up to 23 people, alcohol-free. Book directly on WhatsApp.',
+                noticePt: 'Visitas somente com reserva confirmada. Por favor, não venha sem agendar.',
+                noticeEn: 'Visits by confirmed reservation only. Please don\'t arrive without booking.',
                 brief: true,
             )),
             Beat::scene(new Scene(

@@ -354,6 +354,47 @@ html.is-scrolly .fine { opacity: 0; }
     line-height: 0.88;
 }
 
+.view-line {
+    margin: 0.35rem 0 0;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: clamp(1.45rem, 3.4vw, 2.25rem);
+    letter-spacing: 0.03em;
+    line-height: 1.15;
+    color: #fff;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+}
+
+.view-credit {
+    margin: 0.4rem 0 0.65rem;
+}
+
+.view-credit span {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #f3e2cc;
+    border: 1px solid rgba(193, 155, 118, 0.9);
+    border-radius: 999px;
+    padding: 0.28rem 0.72rem;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+
+.notice {
+    margin: 0.7rem 0 0;
+    max-width: 28rem;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: #f3e2cc;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+}
+
 .body,
 .price,
 .meta,

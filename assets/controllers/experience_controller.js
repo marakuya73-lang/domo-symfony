@@ -333,6 +333,10 @@ export default class extends Controller {
         if (title?.dataset.pt && title.dataset.en) {
             title.textContent = en ? title.dataset.en : title.dataset.pt;
         }
+        const description = document.querySelector('meta[name="description"]');
+        if (description?.dataset.pt && description.dataset.en) {
+            description.setAttribute('content', en ? description.dataset.en : description.dataset.pt);
+        }
         this.element.querySelectorAll('.js-wa').forEach((link) => {
             const next = en ? link.dataset.waEn : link.dataset.waPt;
             if (next) link.href = next;
