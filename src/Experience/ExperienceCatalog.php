@@ -80,8 +80,8 @@ final class ExperienceCatalog
                 altEn: 'Wooden deck with the dome, the gazebo and the mountain view',
                 titlePt: 'O deck é seu. O pôr do sol também.',
                 titleEn: 'The deck is yours. So is the sunset.',
-                bodyPt: 'Trezentos e quarenta metros de madeira e horizonte.',
-                bodyEn: 'Three hundred and forty metres of wood and horizon.',
+                bodyPt: '340 m² de deck, só madeira e horizonte.',
+                bodyEn: '340 m² of deck, just wood and horizon.',
             ),
             new Scene(
                 id: '03b',
@@ -94,8 +94,8 @@ final class ExperienceCatalog
                 altEn: 'The deck and the ridge seen from the dome',
                 titlePt: 'Oito metros de domo. Cinco hóspedes — ou sete, se você pedir.',
                 titleEn: 'Eight metres of dome. Five guests — or seven, if you ask.',
-                bodyPt: 'Uma rainha no domo, outra na pirâmide, e um solteiro.',
-                bodyEn: 'A queen in the dome, another in the pyramid, and a single.',
+                bodyPt: 'Uma cama queen no domo, outra na pirâmide, e uma de solteiro.',
+                bodyEn: 'A queen bed in the dome, another queen bed in the pyramid, and a single bed.',
             ),
             new Scene(
                 id: '04a',

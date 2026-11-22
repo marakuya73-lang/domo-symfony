@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class ExperienceControllerTest extends WebTestCase
 {
@@ -32,7 +35,14 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringContainsString('Pular para reservas', $html);
         self::assertStringContainsString('Skip to booking', $html);
         self::assertStringContainsString('prefers-reduced-motion', $html);
-        self::assertStringContainsString('noindex', $html);
+        self::assertStringContainsString('340 m² de deck, só madeira e horizonte.', $html);
+        self::assertStringContainsString('340 m² of deck, just wood and horizon.', $html);
+        self::assertStringContainsString('Uma cama queen no domo, outra na pirâmide, e uma de solteiro.', $html);
+        self::assertStringContainsString('A queen bed in the dome, another queen bed in the pyramid, and a single bed.', $html);
+        self::assertStringNotContainsString('Uma rainha', $html);
+        self::assertStringNotContainsString('Trezentos e quarenta metros', $html);
+        self::assertStringNotContainsString('noindex', $html);
+        $this->assertCanonicalPointsAtHome($client, $crawler);
         self::assertStringContainsString('https://wa.me/5561998159838?text=', $html);
         self::assertStringContainsString('https://www.airbnb.com/h/domoxango', $html);
         self::assertStringContainsString('https://rajaaram.com.br', $html);
@@ -52,22 +62,30 @@ final class ExperienceControllerTest extends WebTestCase
     public function testPreviewAliasUsesTheSameStory(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/preview');
+        $crawler = $client->request('GET', '/preview');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Sua Pausa Consciente');
+        $this->assertCanonicalPointsAtHome($client, $crawler);
     }
 
-    public function testHomepageIsNotReplacedByThePreview(): void
+    public function testHomepageRendersTheExperience(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/');
+        $crawler = $client->request('GET', '/');
 
-        self::assertResponseStatusCodeSame(404);
-        self::assertStringNotContainsString(
-            'Sua Pausa Consciente',
-            (string) $client->getResponse()->getContent(),
-        );
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Sua Pausa Consciente');
+        $this->assertCanonicalPointsAtHome($client, $crawler);
+    }
+
+    public function testExperiencePathStillWorksAndCanonicalisesHome(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/experiencia');
+
+        self::assertResponseIsSuccessful();
+        $this->assertCanonicalPointsAtHome($client, $crawler);
     }
 
     public function testShippedClipsAndPostersExist(): void
@@ -98,5 +116,17 @@ final class ExperienceControllerTest extends WebTestCase
         foreach ($files as $file) {
             self::assertFileExists($root.$file, $file);
         }
+    }
+
+    private function assertCanonicalPointsAtHome(KernelBrowser $client, Crawler $crawler): void
+    {
+        $expected = $client->getContainer()->get('router')->generate(
+            'experience_home',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        self::assertSame($expected, $crawler->filter('link[rel="canonical"]')->attr('href'));
+        self::assertStringEndsWith('/', $expected);
     }
 }
