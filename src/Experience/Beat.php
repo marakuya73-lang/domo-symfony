@@ -10,6 +10,7 @@ final readonly class Beat
         public string $type,
         public ?Scene $scene = null,
         public ?Hub $hub = null,
+        public ?Fork $fork = null,
     ) {
     }
 
@@ -21,5 +22,10 @@ final readonly class Beat
     public static function hub(Hub $hub): self
     {
         return new self('hub', null, $hub);
+    }
+
+    public static function fork(Fork $fork): self
+    {
+        return new self('fork', null, null, $fork);
     }
 }
