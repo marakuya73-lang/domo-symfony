@@ -21,7 +21,7 @@ final class ExperienceController extends AbstractController
     public function __invoke(ExperienceCatalog $catalog): Response
     {
         return $this->render('experience/show.html.twig', [
-            'scenes' => $catalog->scenes(),
+            'beats' => $catalog->beats(),
             'links' => $catalog->links(),
         ]);
     }

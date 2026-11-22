@@ -75,6 +75,7 @@ export default class extends Controller {
     tick() {
         this.raf = requestAnimationFrame(() => this.tick());
         const index = this.currentIndex ?? 0;
+        if (index < 0) return;
         const scene = this.sceneTargets[index];
         if (!scene) return;
         const target = scene._targetProgress ?? 0;
@@ -86,6 +87,21 @@ export default class extends Controller {
 
     syncFromScroll() {
         const y = window.scrollY;
+        const hubs = this.element.querySelectorAll('[data-hub]');
+        let onHub = false;
+        hubs.forEach((hub) => {
+            if (y >= hub.offsetTop - 1 && y < hub.offsetTop + hub.offsetHeight - 1) onHub = true;
+        });
+        this.element.classList.toggle('is-on-hub', onHub);
+        if (onHub) {
+            this.sceneTargets.forEach((scene) => scene.classList.remove('is-current'));
+            this.currentIndex = -1;
+            if (this.hasReservasTarget) {
+                const top = this.reservasTarget.getBoundingClientRect().top;
+                this.element.classList.toggle('is-on-paper', top < window.innerHeight * 0.62);
+            }
+            return;
+        }
         let index = this.sceneTargets.length - 1;
         for (let i = 0; i < this.sceneTargets.length; i++) {
             const scene = this.sceneTargets[i];
@@ -130,7 +146,9 @@ export default class extends Controller {
     }
 
     warmAround(index) {
-        this.videoTargets.forEach((video, i) => {
+        this.sceneTargets.forEach((scene, i) => {
+            const video = scene.querySelector('video[data-src]');
+            if (!video) return;
             if (Math.abs(i - index) <= 1) this.mount(video);
             else this.unmount(video);
         });
@@ -148,9 +166,10 @@ export default class extends Controller {
             if (still) gsap.set(still, { scale: 1.08 - progress * 0.06, transformOrigin: 'center center' });
         }
 
-        if (progress > 0.5 && this.videoTargets[index + 1]) this.mount(this.videoTargets[index + 1]);
+        const upcoming = this.sceneTargets[index + 1]?.querySelector('video[data-src]');
+        if (progress > 0.5 && upcoming) this.mount(upcoming);
 
-        const video = this.videoTargets[index];
+        const video = scene.querySelector('video[data-src]');
         if (!video || this.skipVideo(video)) return;
         video._progress = progress;
         if (video._seeking && video._seekAt && performance.now() - video._seekAt > 700) {
@@ -191,7 +210,7 @@ export default class extends Controller {
     }
 
     prepareVideos() {
-        this.videoTargets.forEach((video) => {
+        this.element.querySelectorAll('video[data-src]').forEach((video) => {
             video.muted = true;
             video.defaultMuted = true;
             video.playsInline = true;

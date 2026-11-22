@@ -19,6 +19,7 @@ final readonly class BookingLinks
         public string $airbnb,
         public string $rajaaram,
         public string $phone,
+        public string $concierge,
     ) {
     }
 }

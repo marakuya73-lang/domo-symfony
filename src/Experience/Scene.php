@@ -33,6 +33,12 @@ final readonly class Scene
         public bool $hero = false,
         public bool $finale = false,
         public bool $brief = false,
+        public bool $placeholder = false,
+        public ?string $smallPt = null,
+        public ?string $smallEn = null,
+        public ?string $anchor = null,
+        public ?string $backHub = null,
+        public ?string $nextHref = null,
     ) {
     }
 }
