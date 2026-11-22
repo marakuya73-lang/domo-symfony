@@ -138,7 +138,8 @@ export default class extends Controller {
 
     onProgress(scene, index, progress) {
         const hero = scene.dataset.hero === '1';
-        const visible = hero ? progress < 0.9 : progress > 0.07 && progress < 0.86;
+        const brief = scene.dataset.brief === '1';
+        const visible = hero || brief ? progress < 0.92 : progress > 0.07 && progress < 0.86;
         if (visible) this.showCopy(scene);
         else this.hideCopy(scene);
 
@@ -172,10 +173,11 @@ export default class extends Controller {
         const bits = this.copyBits(scene);
         if (!bits.length || scene.dataset.shown === '1') return;
         scene.dataset.shown = '1';
-        gsap.fromTo(bits, { autoAlpha: 0, y: 26 }, {
+        const brief = scene.dataset.brief === '1';
+        gsap.fromTo(bits, { autoAlpha: 0, y: brief ? 16 : 26 }, {
             autoAlpha: 1,
             y: 0,
-            duration: 0.7,
+            duration: brief ? 0.35 : 0.7,
             ease: 'power2.out',
             overwrite: 'auto',
         });

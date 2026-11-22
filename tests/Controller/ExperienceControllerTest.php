@@ -57,6 +57,11 @@ final class ExperienceControllerTest extends WebTestCase
             ['01', '02a', '02b', '03a', '03b', '04a', '04b', '04c', '06', '08a', '08b', '08c', '08d', '09', '10a', '10b'],
             $crawler->filter('[data-scene]')->extract(['data-scene']),
         );
+        foreach (['04b', '04c', '10a'] as $still) {
+            self::assertSame('38', $crawler->filter('[data-scene="'.$still.'"]')->attr('data-travel'));
+            self::assertSame('1', $crawler->filter('[data-scene="'.$still.'"]')->attr('data-brief'));
+        }
+        self::assertLessThan(100, (int) $crawler->filter('[data-scene="10b"]')->attr('data-travel'));
     }
 
     public function testPreviewAliasUsesTheSameStory(): void

@@ -32,6 +32,7 @@ final readonly class Scene
         public ?string $fineEn = null,
         public bool $hero = false,
         public bool $finale = false,
+        public bool $brief = false,
     ) {
     }
 }
