@@ -37,10 +37,17 @@ export default class extends Controller {
             this.raf = requestAnimationFrame(this.tick);
         } else {
             this.refreshVisibility();
+            this.onHint = () => {
+                this.element.querySelectorAll('.scroll-hint').forEach((hint) => {
+                    hint.classList.toggle('is-gone', window.scrollY > 8);
+                });
+            };
+            window.addEventListener('scroll', this.onHint, { passive: true });
         }
     }
 
     disconnect() {
+        if (this.onHint) window.removeEventListener('scroll', this.onHint);
         this.driver?.stop();
         if (this.raf) cancelAnimationFrame(this.raf);
         if (this.onScroll) window.removeEventListener('scroll', this.onScroll);

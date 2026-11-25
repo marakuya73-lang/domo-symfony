@@ -22,6 +22,7 @@ final readonly class Fork
         public string $discoverPt,
         public string $discoverEn,
         public bool $rajaaram = false,
+        public bool $scrollHint = false,
     ) {
     }
 }
