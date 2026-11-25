@@ -23,6 +23,10 @@ export default class extends Controller {
         };
         this.element.addEventListener('pointerenter', this.onWarmChoice, true);
         this.element.addEventListener('touchstart', this.onWarmChoice, { capture: true, passive: true });
+        this.syncHint = this.syncHint.bind(this);
+        window.addEventListener('scroll', this.syncHint, { passive: true });
+        window.addEventListener('resize', this.syncHint);
+        this.syncHint();
         if (this.scrolly && this.element.querySelector('[data-stage]')) {
             this.driver = new StageScrub(this.element);
             this.driver.start();
@@ -37,21 +41,12 @@ export default class extends Controller {
             this.raf = requestAnimationFrame(this.tick);
         } else {
             this.refreshVisibility();
-            this.onHint = () => {
-                this.element.querySelectorAll('.scroll-hint').forEach((hint) => {
-                    const host = hint.closest('.scene, .fork, .stage__cue');
-                    if (!host) return;
-                    const rect = host.getBoundingClientRect();
-                    const through = rect.height > 0 ? Math.min(1, Math.max(0, -rect.top / rect.height)) : 0;
-                    hint.classList.toggle('is-gone', through > 0.18);
-                });
-            };
-            window.addEventListener('scroll', this.onHint, { passive: true });
         }
     }
 
     disconnect() {
-        if (this.onHint) window.removeEventListener('scroll', this.onHint);
+        window.removeEventListener('scroll', this.syncHint);
+        window.removeEventListener('resize', this.syncHint);
         this.driver?.stop();
         if (this.raf) cancelAnimationFrame(this.raf);
         if (this.onScroll) window.removeEventListener('scroll', this.onScroll);
@@ -522,6 +517,7 @@ export default class extends Controller {
             if (this.driver) this.driver.activate();
             else this.layout();
             this.renderDots();
+            this.syncHint();
             return;
         }
         const branch = this.element.querySelector(`#branch-${CSS.escape(id)}`);
@@ -536,5 +532,17 @@ export default class extends Controller {
         else this.layout();
         branch.querySelectorAll('.scene').forEach((scene) => { scene._shown = null; });
         this.renderDots();
+        this.syncHint();
+    }
+
+    syncHint() {
+        const hint = this.element.querySelector('.scroll-hint');
+        if (!hint) return;
+        const height = window.innerHeight || 800;
+        const max = Math.max(0, document.documentElement.scrollHeight - height);
+        const atEnd = window.scrollY >= max - 12;
+        const booking = this.hasReservasTarget ? this.reservasTarget.getBoundingClientRect() : null;
+        const onBooking = !!booking && booking.top < height * 0.55 && booking.bottom > height * 0.2;
+        hint.classList.toggle('is-gone', atEnd || onBooking);
     }
 }
