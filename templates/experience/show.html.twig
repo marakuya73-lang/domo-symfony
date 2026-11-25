@@ -15,6 +15,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dosis:wght@300;500&family=Herr+Von+Muellerhoff&display=swap">
     <link rel="preload" as="image" href="{{ asset('media/experience/posters/01_hero-start.jpg') }}">
+    <link rel="preload" as="image" href="{{ asset('media/experience/posters/02a_hill-start.jpg') }}">
+    <link rel="preload" as="video" href="{{ asset('media/experience/01_hero.mp4') }}">
     <script>
         (function () {
             var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -80,6 +82,8 @@
             <span class="t-pt">Pular para reservas →</span><span class="t-en">Skip to booking →</span>
         </a>
 
+        <nav class="steps" data-experience-target="steps" aria-label="Passos" hidden></nav>
+
         <a class="pill wa-float js-wa" href="{{ links.stayPt }}" data-wa-pt="{{ links.stayPt }}" data-wa-en="{{ links.stayEn }}" target="_blank" rel="noopener noreferrer">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path fill="currentColor" d="M12 3.2A8.7 8.7 0 0 0 4.6 16.4L3.4 20.6l4.3-1.1A8.8 8.8 0 1 0 12 3.2Zm0 1.6a7.1 7.1 0 0 1 0 14.2 7 7 0 0 1-3.6-.9l-.4-.2-2.5.7.7-2.5-.3-.4A7.1 7.1 0 0 1 12 4.8Zm-2.9 3.6c-.2 0-.4 0-.6.3-.2.3-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 3.9 3.4 1.9.8 2.3.7 2.7.6.4-.1 1.3-.5 1.5-1 .2-.5.2-.9.1-1-.1-.1-.2-.1-.5-.3l-1.3-.6c-.2-.1-.4-.1-.5.1l-.6.7c-.1.1-.2.2-.4.1s-.9-.3-1.7-1.1a6 6 0 0 1-1.2-1.5c-.1-.2 0-.3.1-.4l.4-.5c.1-.1.1-.2.2-.4s0-.3 0-.4l-.6-1.4c-.1-.3-.3-.3-.5-.3h-.5Z"/>
@@ -89,7 +93,7 @@
     </header>
 
     <div class="story" data-experience-target="story">
-        {% include 'experience/_beats.html.twig' with {beats: beats} %}
+        {% include 'experience/_beats.html.twig' with {beats: beats, eager: true} %}
     </div>
 
     <section id="reservas" class="reservas" data-experience-target="reservas" tabindex="-1">
@@ -151,5 +155,11 @@
             {% include 'experience/_beats.html.twig' with {beats: branch.beats} %}
         </div>
     {% endfor %}
+
+    <div class="lightbox" data-experience-target="lightbox" hidden>
+        <button type="button" class="lightbox__close" data-action="experience#closeExpand"><span class="t-pt">Fechar</span><span class="t-en">Close</span></button>
+        <img alt="" data-experience-target="lightboxImage" hidden>
+        <video data-experience-target="lightboxVideo" muted playsinline loop hidden></video>
+    </div>
 </main>
 {% endblock %}

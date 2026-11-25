@@ -43,6 +43,7 @@ final readonly class Scene
         public ?string $noticeEn = null,
         public bool $choices = false,
         public ?string $cta = null,
+        public bool $pause = false,
     ) {
     }
 }
