@@ -5,7 +5,7 @@ import { Controller } from '@hotwired/stimulus';
  * Copy arrives near the end of each scene and stays readable there.
  */
 export default class extends Controller {
-    static targets = ['scene', 'video', 'story', 'reservas', 'book', 'bookButton', 'bookMenu', 'steps', 'lightbox', 'lightboxImage', 'lightboxVideo'];
+    static targets = ['scene', 'video', 'story', 'reservas', 'book', 'bookButton', 'bookMenu', 'steps'];
 
     connect() {
         this.onKey = this.onKey.bind(this);
@@ -14,8 +14,7 @@ export default class extends Controller {
         this.finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         this.applyLang(document.documentElement.lang?.startsWith('en') ? 'en' : 'pt', false);
         this.warmed = new Set();
-        this.observe();
-        this.observeReels();
+        if (this.scrolly) this.prepareVideos();
         this.onWarmChoice = (event) => {
             const link = event.target?.closest?.('[data-prefetch]');
             if (!link) return;
@@ -100,8 +99,10 @@ export default class extends Controller {
             }
             const video = scene.querySelector('video.scene__video');
             if (video) {
-                if ((current || incoming) && opacity > 0.2) this.play(video);
-                else this.pause(video);
+                if ((current || incoming) && opacity > 0.05) {
+                    this.mount(video);
+                    this.seekToProgress(video, current ? eased : 0);
+                } else this.unmount(video);
             }
             if (current && raw > 0.35) this.prefetchAhead(scene);
         });
@@ -143,8 +144,7 @@ export default class extends Controller {
                     else if (entry.intersectionRatio < 0.25) slide.classList.remove('is-settled');
                     const video = slide.querySelector('video');
                     if (!video) return;
-                    if (entry.intersectionRatio >= 0.45 && this.slideIsOnScreen(slide)) this.play(video);
-                    else this.pause(video);
+                    if (!(entry.intersectionRatio >= 0.45 && this.slideIsOnScreen(slide))) this.pause(video);
                     if (on) this.markReelDot(reel, slide);
                 });
             }, { root: track, threshold: [0.25, 0.6, 1] });
@@ -163,8 +163,7 @@ export default class extends Controller {
         const video = node.querySelector(':scope > .scene__pin video, :scope > video');
         const pinVideo = node.querySelector('video.scene__video');
         const clip = pinVideo || video;
-        if (clip && ratio >= 0.45) this.play(clip);
-        else if (clip) this.pause(clip);
+        if (clip && ratio < 0.45) this.pause(clip);
         if (ratio >= 0.6) {
             this.prefetchAhead(node);
             this.markDots();
@@ -184,29 +183,112 @@ export default class extends Controller {
         this.renderDots();
     }
 
-    play(video) {
-        if (!this.scrolly || !video) return;
-        this.ensureSrc(video);
-        const pending = video.play();
-        if (pending && typeof pending.catch === 'function') {
-            pending.then(() => video.closest('.scene, .reel__slide')?.classList.add('is-ready')).catch(() => {});
+    prepareVideos() {
+        this.element.querySelectorAll('video.scene__video').forEach((video) => {
+            video.muted = true;
+            video.defaultMuted = true;
+            video.playsInline = true;
+            video.loop = false;
+            if (video._scrubBound) return;
+            video._scrubBound = true;
+            video.addEventListener('loadedmetadata', () => this.seekToProgress(video, video._progress ?? 0));
+            video.addEventListener('loadeddata', () => this.prime(video));
+            video.addEventListener('seeked', () => {
+                video._seeking = false;
+                video.closest('.scene')?.classList.add('is-ready');
+                if (video._want != null && Math.abs(video.currentTime - video._want) >= 0.08) this.seek(video, video._want);
+            });
+            video.addEventListener('error', () => { video._seeking = false; });
+        });
+    }
+
+    seekToProgress(video, progress) {
+        video._progress = progress;
+        if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+        this.seek(video, 0.04 + progress * Math.max(video.duration - 0.08, 0));
+    }
+
+    seek(video, time) {
+        if (!video || video.readyState < 1 || !Number.isFinite(video.duration) || video.duration <= 0) {
+            video._want = time;
+            return;
         }
+        const t = Math.min(Math.max(time, 0), Math.max(video.duration - 0.05, 0));
+        video._want = t;
+        if (video._seeking) return;
+        if (Math.abs(video.currentTime - t) < 0.08) return;
+        video._seeking = true;
+        video._seekAt = performance.now();
+        try {
+            video.currentTime = t;
+        } catch (e) {
+            video._seeking = false;
+        }
+    }
+
+    prime(video) {
+        if (video._primed) return;
+        video._primed = true;
+        const settle = () => {
+            video.pause();
+            if (video._want != null) this.seek(video, video._want);
+        };
+        const pending = video.play();
+        if (pending && typeof pending.then === 'function') pending.then(settle).catch(settle);
+        else settle();
+    }
+
+    mount(video) {
+        if (!video) return;
+        if (video.dataset.poster && !video.getAttribute('poster')) video.poster = video.dataset.poster;
+        const src = video.dataset.src || video.currentSrc;
+        if (!src || video._blobUrl || video._loading) return;
+        if (video.getAttribute('src') && !video.dataset.src) video.dataset.src = video.getAttribute('src');
+        const fetchUrl = video.dataset.src;
+        if (!fetchUrl) return;
+        video._loading = true;
+        video._epoch = (video._epoch || 0) + 1;
+        const epoch = video._epoch;
+        fetch(fetchUrl)
+            .then((response) => {
+                if (!response.ok) throw new Error(`video ${response.status}`);
+                return response.blob();
+            })
+            .then((blob) => {
+                if (video._epoch !== epoch) return;
+                const url = URL.createObjectURL(blob);
+                video._blobUrl = url;
+                video._loading = false;
+                video.preload = 'auto';
+                video.src = url;
+                video.load();
+            })
+            .catch(() => {
+                if (video._epoch === epoch) video._loading = false;
+            });
+    }
+
+    unmount(video) {
+        if (!video) return;
+        video._epoch = (video._epoch || 0) + 1;
+        video._loading = false;
+        video.pause();
+        if (video._blobUrl) {
+            URL.revokeObjectURL(video._blobUrl);
+            video._blobUrl = null;
+        }
+        if (video.getAttribute('src')) {
+            video.removeAttribute('src');
+            video.load();
+        }
+        video._seeking = false;
+        video._primed = false;
+        video.closest('.scene')?.classList.remove('is-ready');
     }
 
     pause(video) {
         if (!video) return;
         video.pause();
-    }
-
-    ensureSrc(video) {
-        if (!video || video.getAttribute('src') || video._loading) return;
-        const src = video.dataset.src;
-        if (!src) return;
-        if (video.dataset.poster && !video.getAttribute('poster')) video.poster = video.dataset.poster;
-        video._loading = true;
-        video.preload = 'metadata';
-        video.src = src;
-        video.load();
     }
 
     prefetchAhead(node) {
@@ -216,8 +298,8 @@ export default class extends Controller {
             if (!cursor) return;
             cursor.querySelectorAll('img.media__full').forEach((img) => this.warm(this.pickUrl(img)));
             if (step === 0) {
-                const video = cursor.querySelector('video[data-src]');
-                if (video) this.ensureSrc(video);
+                const video = cursor.querySelector('video.scene__video');
+                if (video) this.mount(video);
             }
         }
     }
@@ -321,35 +403,6 @@ export default class extends Controller {
         slide?.scrollIntoView({ inline: 'start', block: 'nearest' });
     }
 
-    expand(event) {
-        const scene = event.currentTarget.closest('.scene');
-        if (!scene || !this.hasLightboxTarget) return;
-        const video = scene.querySelector('video');
-        const image = scene.querySelector('.scene__still');
-        this.lightboxTarget.hidden = false;
-        if (video && (video.currentSrc || video.dataset.src)) {
-            this.ensureSrc(video);
-            this.lightboxVideoTarget.hidden = false;
-            this.lightboxImageTarget.hidden = true;
-            this.lightboxVideoTarget.src = video.currentSrc || video.dataset.src;
-            this.lightboxVideoTarget.play().catch(() => {});
-        } else if (image) {
-            this.lightboxImageTarget.hidden = false;
-            this.lightboxVideoTarget.hidden = true;
-            this.lightboxImageTarget.src = image.currentSrc || image.src;
-            this.lightboxImageTarget.alt = image.alt;
-        }
-    }
-
-    closeExpand() {
-        if (!this.hasLightboxTarget) return;
-        this.lightboxTarget.hidden = true;
-        if (this.hasLightboxVideoTarget) {
-            this.lightboxVideoTarget.pause();
-            this.lightboxVideoTarget.removeAttribute('src');
-        }
-    }
-
     setLang(event) {
         this.applyLang(event.currentTarget.dataset.lang, true);
         this.renderDots();
@@ -408,10 +461,6 @@ export default class extends Controller {
 
     onKey(event) {
         if (event.key !== 'Escape') return;
-        if (this.hasLightboxTarget && !this.lightboxTarget.hidden) {
-            this.closeExpand();
-            return;
-        }
         if (this.hasBookMenuTarget && !this.bookMenuTarget.hidden) {
             this.closeBook();
             return;

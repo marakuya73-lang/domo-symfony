@@ -125,6 +125,8 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringContainsString('type="image/avif"', $html);
         self::assertStringContainsString('data:image/jpeg;base64,', $html);
         self::assertStringContainsString('fetchpriority="high"', $html);
+        self::assertStringNotContainsString('Ampliar', $html);
+        self::assertDoesNotMatchRegularExpression('/<video\b[^>]*\sloop[\s>]/', $html);
         self::assertStringContainsString('playsinline', $html);
         self::assertStringContainsString('data-src="/media/experience/09_falls.mp4"', $html);
         $css = (string) file_get_contents(dirname(__DIR__, 2).'/assets/styles/experience.css');
