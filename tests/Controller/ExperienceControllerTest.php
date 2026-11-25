@@ -53,6 +53,12 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringContainsString('prefers-reduced-motion', $html);
         self::assertStringContainsString('340 m² de madeira suspensa sobre o vale.', $html);
         self::assertStringContainsString('340 m² of wood suspended over the valley.', $html);
+        self::assertStringContainsString('O deck é seu. O nascer do sol também.', $html);
+        self::assertStringContainsString('The deck is yours. So is the sunrise.', $html);
+        self::assertStringContainsString('Ioga ao amanhecer, a lua nascendo à noite, 360° de estrelas.', $html);
+        self::assertStringNotContainsString('pôr do sol', $html);
+        self::assertStringNotContainsString('sunset', strtolower($html));
+        self::assertStringNotContainsString('breakfast-sunset', $html);
         self::assertStringNotContainsString('Trezentos e quarenta metros', $html);
         self::assertStringContainsString('O que você busca?', $html);
         self::assertStringContainsString('What are you looking for?', $html);
@@ -78,7 +84,6 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringNotContainsString('data-placeholder="bath"', $html);
         self::assertStringContainsString('/media/experience/v5/bath-1.jpg', $html);
         self::assertStringContainsString('/media/experience/v5/breakfast-deck.jpg', $html);
-        self::assertStringContainsString('/media/experience/v5/breakfast-sunset.jpg', $html);
         self::assertStringContainsString('/media/experience/v5/night-milkyway.jpg', $html);
         self::assertStringContainsString('/media/experience/v5/night-moon-palms.jpg', $html);
         self::assertStringNotContainsString('/media/experience/v5/breakfast.jpg', $html);
@@ -141,6 +146,7 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringContainsString('position: fixed', $css);
         self::assertStringContainsString('position: sticky', $css);
         self::assertStringContainsString('html.is-scrolly .beats > .scene', $css);
+        self::assertStringNotContainsString('"id":"deck"', $crawler->filter('[data-stage="estadia"]')->attr('data-sequence'));
         $order = ['"id":"hero"', '"id":"road"', '"id":"walk"', '"id":"dome"', '"id":"deck"', '"id":"interior"'];
         $at = -1;
         foreach ($order as $token) {
@@ -158,7 +164,7 @@ final class ExperienceControllerTest extends WebTestCase
             ['01', '02a', 'path', 'path-pause', '03a'],
             $crawler->filter('.story [data-scene]')->extract(['data-scene']),
         );
-        foreach (['04b', '04c', '10a', 'bath-1', 'breakfast', 'breakfast-sunset', 'night-milkyway', 'night-moon-palms'] as $still) {
+        foreach (['04b', '04c', '10a', 'bath-1', 'breakfast', 'night-milkyway', 'night-moon-palms'] as $still) {
             self::assertSame('38', $crawler->filter('[data-scene="'.$still.'"]')->attr('data-travel'));
             self::assertSame('1', $crawler->filter('[data-scene="'.$still.'"]')->attr('data-brief'));
         }

@@ -81,10 +81,10 @@ final class ScrubSequences
                 'bodyEn' => 'Sacred geometry, alone before the valley. All yours.',
             ]),
             $this->cue('deck', 0.16, 0.86, 'right', [
-                'titlePt' => 'O deck é seu. O pôr do sol também.',
-                'titleEn' => 'The deck is yours. So is the sunset.',
-                'bodyPt' => '340 m² de madeira suspensa sobre o vale. Ioga ao amanhecer, lua cheia à noite, 360° de estrelas.',
-                'bodyEn' => '340 m² of wood suspended over the valley. Yoga at dawn, full moon at night, 360° of stars.',
+                'titlePt' => 'O deck é seu. O nascer do sol também.',
+                'titleEn' => 'The deck is yours. So is the sunrise.',
+                'bodyPt' => '340 m² de madeira suspensa sobre o vale. Ioga ao amanhecer, a lua nascendo à noite, 360° de estrelas.',
+                'bodyEn' => '340 m² of wood suspended over the valley. Yoga at sunrise, the moon rising at night, 360° of stars.',
             ]),
             $this->cue('interior', 0.18, 0.88, 'left', [
                 'titlePt' => 'Um pedaço de paraíso no meio da mata.',
@@ -112,7 +112,6 @@ final class ScrubSequences
             $this->still('house', 'posters/03a_orbit-mid.jpg'),
             $this->still('sleep', 'posters/04b_5005-mid.jpg'),
             $this->still('cocoon', 'posters/04c_5004-mid.jpg'),
-            $this->frames('deck'),
             $this->still('pyramid', 'posters/02b_pyramid-mid.jpg'),
             $this->still('kitchen', 'v5/stay-3.jpg'),
             $this->still('bath-1', 'v5/bath-1.jpg'),
@@ -120,7 +119,6 @@ final class ScrubSequences
             $this->still('bath-3', 'v5/bath-3.jpg'),
             $this->still('bath-4', 'v5/bath-4.jpg'),
             $this->still('breakfast', 'v5/breakfast-deck.jpg'),
-            $this->still('breakfast-sunset', 'v5/breakfast-sunset.jpg'),
         ], [
             $this->cue('interior', 0, 0.4, 'center', [
                 'middle' => true,
@@ -132,12 +130,6 @@ final class ScrubSequences
                 'discoverEn' => 'Discover the dome',
                 'scrubClip' => 'interior',
                 'scrubLocal' => 0.55,
-            ]),
-            $this->cue('interior', 0.5, 0.92, 'center', [
-                'titlePt' => 'Um pedaço de paraíso no meio da mata.',
-                'titleEn' => 'A piece of paradise in the middle of the forest.',
-                'bodyPt' => 'Entre o canto dos pássaros e a vida selvagem do cerrado, o horizonte é todo seu.',
-                'bodyEn' => 'Amid birdsong and the wild life of the cerrado, the horizon is all yours.',
             ]),
             $this->cue('falls', 0.14, 0.86, 'right', [
                 'titlePt' => 'A dez minutos, a água fria te chama.',
@@ -173,13 +165,6 @@ final class ScrubSequences
                 'bodyEn' => 'As night falls, soft light turns the dome into a warm cocoon.',
                 'action' => 'choices',
             ]),
-            $this->cue('deck', 0.16, 0.86, 'right', [
-                'titlePt' => 'O deck é seu. O pôr do sol também.',
-                'titleEn' => 'The deck is yours. So is the sunset.',
-                'bodyPt' => '340 m² de madeira suspensa sobre o vale. Ioga ao amanhecer, lua cheia à noite, 360° de estrelas.',
-                'bodyEn' => '340 m² of wood suspended over the valley. Yoga at dawn, full moon at night, 360° of stars.',
-                'action' => 'choices',
-            ]),
             $this->cue('pyramid', 0.14, 0.86, 'left', [
                 'titlePt' => 'A pirâmide sagrada.',
                 'titleEn' => 'The sacred pyramid.',
@@ -205,8 +190,6 @@ final class ScrubSequences
                 'titleEn' => 'Artisanal breakfast at Kuya Deck.',
                 'bodyPt' => 'Sob pedido, com canto de pássaros e o cerrado acordando.',
                 'bodyEn' => 'On request, with birdsong and the cerrado waking up.',
-            ]),
-            $this->cue('breakfast-sunset', 0.18, 0.88, 'center', [
                 'action' => 'choices',
             ]),
         ], 'v7/stay-1.jpg', 'v7/stay-1.jpg', true);
