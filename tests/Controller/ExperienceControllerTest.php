@@ -120,8 +120,15 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertLessThan($reservasAt, $hubAt);
         self::assertLessThan($branchAt, $reservasAt);
         self::assertStringNotContainsString('Silêncio para dois', $html);
-        self::assertStringContainsString('src="/media/experience/01_hero.mp4"', $html);
-        self::assertStringContainsString('preload="metadata"', $html);
+        self::assertStringContainsString('data-src="/media/experience/01_hero.mp4"', $html);
+        self::assertStringContainsString('preload="none"', $html);
+        self::assertStringContainsString('<canvas class="stage__canvas"', $html);
+        self::assertStringContainsString('data-stage="journey"', $html);
+        self::assertStringContainsString('data-px="10"', $html);
+        $journey = $crawler->filter('[data-stage="journey"]')->attr('data-sequence');
+        self::assertStringContainsString('/media/experience/seq/hero/m', $journey);
+        self::assertStringContainsString('/media/experience/seq/walk/', $journey);
+        self::assertStringContainsString('"frames":192', $journey);
         self::assertStringContainsString('type="image/avif"', $html);
         self::assertStringContainsString('data:image/jpeg;base64,', $html);
         self::assertStringContainsString('fetchpriority="high"', $html);
@@ -132,6 +139,16 @@ final class ExperienceControllerTest extends WebTestCase
         $css = (string) file_get_contents(dirname(__DIR__, 2).'/assets/styles/experience.css');
         self::assertStringNotContainsString('scroll-snap-type: y', $css);
         self::assertStringContainsString('position: fixed', $css);
+        self::assertStringContainsString('position: sticky', $css);
+        self::assertStringContainsString('html.is-scrolly .beats > .scene', $css);
+        $order = ['"id":"hero"', '"id":"road"', '"id":"walk"', '"id":"dome"', '"id":"deck"', '"id":"interior"'];
+        $at = -1;
+        foreach ($order as $token) {
+            $next = strpos($journey, $token);
+            self::assertNotFalse($next, $token);
+            self::assertGreaterThan($at, $next);
+            $at = $next;
+        }
         $estadia = $crawler->filter('#branch-estadia')->html();
         self::assertStringContainsString('v7/stay-1.mp4', $estadia);
         self::assertStringContainsString('v7/stay-2.mp4', $estadia);

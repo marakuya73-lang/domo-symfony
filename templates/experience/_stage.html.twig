@@ -1,0 +1,81 @@
+<section
+    class="stage"
+    id="stage-{{ stage.id }}"
+    data-stage="{{ stage.id }}"
+    data-px="{{ stage.px }}"
+    data-frames="{{ stage.frames }}"
+    data-sequence="{{ stage.sequence|e('html_attr') }}"
+>
+    <div class="stage__sticky" style="background-color: {{ stage.color }}">
+        <canvas class="stage__canvas"></canvas>
+        <div class="stage__veil" style="background-color: {{ stage.color }}; background-image: url('{{ stage.lqip }}')"></div>
+        <div class="stage__shade" aria-hidden="true"></div>
+        <div class="stage__cues">
+            {% for cue in stage.cues %}
+                <div class="stage__cue stage__cue--{{ cue.align }}{{ cue.hero ? ' stage__cue--hero' : '' }}" data-from="{{ cue.from }}" data-to="{{ cue.to }}">
+                    {% if cue.kickerPt %}
+                        <p class="kicker"><span class="t-pt">{{ cue.kickerPt }}</span><span class="t-en">{{ cue.kickerEn }}</span></p>
+                    {% endif %}
+                    {% if cue.view %}
+                        <p class="view-line"><span class="t-pt">A melhor vista do mundo</span><span class="t-en">The best view in the world</span></p>
+                    {% endif %}
+                    {% if cue.titlePt %}
+                        {% if cue.hero %}
+                            <h1 class="script"><span class="t-pt">{{ cue.titlePt }}</span><span class="t-en">{{ cue.titleEn }}</span></h1>
+                        {% else %}
+                            <h2 class="script"><span class="t-pt">{{ cue.titlePt }}</span><span class="t-en">{{ cue.titleEn }}</span></h2>
+                        {% endif %}
+                    {% endif %}
+                    {% if cue.bodyPt %}
+                        <p class="body"><span class="t-pt">{{ cue.bodyPt }}</span><span class="t-en">{{ cue.bodyEn }}</span></p>
+                    {% endif %}
+                    {% if cue.smallPt %}
+                        <p class="small"><span class="t-pt">{{ cue.smallPt }}</span><span class="t-en">{{ cue.smallEn }}</span></p>
+                    {% endif %}
+                    {% if cue.noticePt %}
+                        <p class="notice"><span class="t-pt">{{ cue.noticePt }}</span><span class="t-en">{{ cue.noticeEn }}</span></p>
+                    {% endif %}
+                    {% if cue.action == 'hero' %}
+                        <a class="pill js-wa" href="{{ links.stayPt }}" data-wa-pt="{{ links.stayPt }}" data-wa-en="{{ links.stayEn }}" target="_blank" rel="noopener noreferrer">
+                            <span class="t-pt">RESERVAR O DOMO</span><span class="t-en">BOOK THE DOME</span>
+                        </a>
+                    {% elseif cue.action == 'discover' %}
+                        <div class="fork__actions">
+                            <a class="pill" href="{{ cue.discoverHref }}" data-scrub="{{ cue.scrub }}" data-action="experience#scrubTo"><span class="t-pt">{{ cue.discoverPt }}</span><span class="t-en">{{ cue.discoverEn }}</span></a>
+                            <a class="pill pill--ghost" href="#reservas" data-action="experience#leaveBranch"><span class="t-pt">Reservar agora</span><span class="t-en">Book now</span></a>
+                        </div>
+                        {% if cue.rajaaram %}
+                            <p class="chapter-nav chapter-nav--center">
+                                <a href="{{ links.rajaaram }}" target="_blank" rel="noopener noreferrer"><span class="t-pt">Conhecer rajaaram.com.br</span><span class="t-en">Visit rajaaram.com.br</span></a>
+                                <a href="{{ links.rajaaramWa }}" target="_blank" rel="noopener noreferrer">WhatsApp Rajaaram</a>
+                            </p>
+                            <p class="small">{{ links.rajaaramPhone }}</p>
+                        {% endif %}
+                    {% elseif cue.action == 'retreat' %}
+                        <p class="chapter-nav">
+                            <a class="js-wa" href="{{ links.eventPt }}" data-wa-pt="{{ links.eventPt }}" data-wa-en="{{ links.eventEn }}" target="_blank" rel="noopener noreferrer"><span class="t-pt">Falar no WhatsApp</span><span class="t-en">Talk on WhatsApp</span></a>
+                            <a href="#hub-break" data-action="experience#leaveBranch"><span class="t-pt">Voltar às escolhas ↺</span><span class="t-en">Back to choices ↺</span></a>
+                            <a href="#reservas" data-action="experience#leaveBranch"><span class="t-pt">Reservar agora</span><span class="t-en">Book now</span></a>
+                        </p>
+                        <p class="small">{{ links.phone }}</p>
+                    {% elseif cue.action == 'rajaaram' %}
+                        <div class="fork__actions">
+                            <a class="pill" href="{{ links.rajaaram }}" target="_blank" rel="noopener noreferrer"><span class="t-pt">Conhecer rajaaram.com.br</span><span class="t-en">Visit rajaaram.com.br</span></a>
+                            <a class="pill pill--ghost" href="{{ links.rajaaramWa }}" target="_blank" rel="noopener noreferrer">WhatsApp Rajaaram</a>
+                        </div>
+                        <p class="small">{{ links.rajaaramPhone }}</p>
+                        <p class="chapter-nav">
+                            <a href="#hub-break" data-action="experience#leaveBranch"><span class="t-pt">Voltar às escolhas ↺</span><span class="t-en">Back to choices ↺</span></a>
+                            <a href="#reservas" data-action="experience#leaveBranch"><span class="t-pt">Reservar o domo</span><span class="t-en">Book the dome</span></a>
+                        </p>
+                    {% elseif cue.action == 'choices' %}
+                        <p class="chapter-nav">
+                            <a href="#hub-break" data-action="experience#leaveBranch"><span class="t-pt">Voltar às escolhas ↺</span><span class="t-en">Back to choices ↺</span></a>
+                            <a href="#reservas" data-action="experience#leaveBranch"><span class="t-pt">Reservar agora</span><span class="t-en">Book now</span></a>
+                        </p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

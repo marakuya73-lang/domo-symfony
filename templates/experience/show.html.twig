@@ -94,7 +94,10 @@
     </header>
 
     <div class="story" data-experience-target="story">
-        {% include 'experience/_beats.html.twig' with {beats: beats, eager: true} %}
+        {% include 'experience/_stage.html.twig' with {stage: journey} %}
+        <div class="beats">
+            {% include 'experience/_beats.html.twig' with {beats: beats, eager: true} %}
+        </div>
     </div>
 
     <section id="reservas" class="reservas" data-experience-target="reservas" tabindex="-1">
@@ -153,7 +156,10 @@
 
     {% for branch in branches %}
         <div class="branch" id="branch-{{ branch.id }}" data-branch="{{ branch.id }}" aria-label="{{ branch.labelPt }}" data-alt-pt="{{ branch.labelPt }}" data-alt-en="{{ branch.labelEn }}">
-            {% include 'experience/_beats.html.twig' with {beats: branch.beats} %}
+            {% include 'experience/_stage.html.twig' with {stage: branchStages[branch.id]} %}
+            <div class="beats">
+                {% include 'experience/_beats.html.twig' with {beats: branch.beats} %}
+            </div>
         </div>
     {% endfor %}
 

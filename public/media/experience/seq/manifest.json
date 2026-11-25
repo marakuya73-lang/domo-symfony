@@ -1,0 +1,86 @@
+{
+  "hero": {
+    "frames": 192,
+    "mobile": "media/experience/seq/hero/m",
+    "desktop": "media/experience/seq/hero/d",
+    "fps": 24
+  },
+  "road": {
+    "frames": 144,
+    "mobile": "media/experience/seq/road/m",
+    "desktop": "media/experience/seq/road/d",
+    "fps": 24
+  },
+  "walk": {
+    "frames": 630,
+    "mobile": "media/experience/seq/walk/m",
+    "desktop": "media/experience/seq/walk/d",
+    "fps": 24
+  },
+  "dome": {
+    "frames": 167,
+    "mobile": "media/experience/seq/dome/m",
+    "desktop": "media/experience/seq/dome/d",
+    "fps": 24
+  },
+  "deck": {
+    "frames": 144,
+    "mobile": "media/experience/seq/deck/m",
+    "desktop": "media/experience/seq/deck/d",
+    "fps": 24
+  },
+  "interior": {
+    "frames": 241,
+    "mobile": "media/experience/seq/interior/m",
+    "desktop": "media/experience/seq/interior/m",
+    "fps": 24
+  },
+  "stay2": {
+    "frames": 240,
+    "mobile": "media/experience/seq/stay2/m",
+    "desktop": "media/experience/seq/stay2/m",
+    "fps": 24
+  },
+  "retiro1": {
+    "frames": 240,
+    "mobile": "media/experience/seq/retiro1/m",
+    "desktop": "media/experience/seq/retiro1/m",
+    "fps": 24
+  },
+  "retiro2": {
+    "frames": 240,
+    "mobile": "media/experience/seq/retiro2/m",
+    "desktop": "media/experience/seq/retiro2/m",
+    "fps": 24
+  },
+  "retiro3": {
+    "frames": 240,
+    "mobile": "media/experience/seq/retiro3/m",
+    "desktop": "media/experience/seq/retiro3/m",
+    "fps": 24
+  },
+  "stairs": {
+    "frames": 48,
+    "mobile": "media/experience/seq/stairs/m",
+    "desktop": "media/experience/seq/stairs/d",
+    "fps": 24
+  },
+  "sign": {
+    "frames": 84,
+    "mobile": "media/experience/seq/sign/m",
+    "desktop": "media/experience/seq/sign/d",
+    "fps": 24
+  },
+  "gate": {
+    "frames": 96,
+    "mobile": "media/experience/seq/gate/m",
+    "desktop": "media/experience/seq/gate/d",
+    "fps": 24
+  },
+  "rajaaram": {
+    "frames": 144,
+    "mobile": "media/experience/seq/rajaaram/m",
+    "desktop": "media/experience/seq/rajaaram/d",
+    "fps": 24
+  }
+}

@@ -1,9 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
+import StageScrub from '../stage_scrub.js';
 
 /**
- * Each scene is under one viewport tall and scrolls with the page.
- * A clip's currentTime follows that scroll. Until the seek lands, the
- * still zooms with the scroll instead of sitting frozen.
+ * The journey is one sticky canvas. Scroll scrubs an image sequence.
+ * Reduced motion keeps the stills and the text.
  */
 export default class extends Controller {
     static targets = ['scene', 'video', 'story', 'reservas', 'book', 'bookButton', 'bookMenu', 'steps'];
@@ -15,15 +15,19 @@ export default class extends Controller {
         this.finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         this.applyLang(document.documentElement.lang?.startsWith('en') ? 'en' : 'pt', false);
         this.warmed = new Set();
-        if (this.scrolly) this.prepareVideos();
         this.onWarmChoice = (event) => {
             const link = event.target?.closest?.('[data-prefetch]');
             if (!link) return;
             link.dataset.prefetch.split(/\s+/).forEach((url) => this.warm(url));
+            if (link.dataset.branch) this.driver?.prime(link.dataset.branch);
         };
         this.element.addEventListener('pointerenter', this.onWarmChoice, true);
         this.element.addEventListener('touchstart', this.onWarmChoice, { capture: true, passive: true });
-        if (this.scrolly) {
+        if (this.scrolly && this.element.querySelector('[data-stage]')) {
+            this.driver = new StageScrub(this.element);
+            this.driver.start();
+        } else if (this.scrolly) {
+            this.prepareVideos();
             this.layout();
             this.onScroll = () => { this.needsPaint = true; };
             this.onResize = () => this.layout();
@@ -37,6 +41,7 @@ export default class extends Controller {
     }
 
     disconnect() {
+        this.driver?.stop();
         if (this.raf) cancelAnimationFrame(this.raf);
         if (this.onScroll) window.removeEventListener('scroll', this.onScroll);
         if (this.onResize) window.removeEventListener('resize', this.onResize);
@@ -472,6 +477,17 @@ export default class extends Controller {
         requestAnimationFrame(() => target.scrollIntoView({ behavior: 'auto', block: 'start' }));
     }
 
+    scrubTo(event) {
+        if (!this.driver) return;
+        const stage = event.currentTarget.closest('.stage');
+        const fraction = Number(event.currentTarget.dataset.scrub);
+        if (!stage || !Number.isFinite(fraction)) return;
+        event.preventDefault();
+        const top = stage.getBoundingClientRect().top + window.scrollY;
+        const max = Math.max(0, stage.offsetHeight - window.innerHeight);
+        window.scrollTo(0, top + max * fraction);
+    }
+
     jump(event) {
         const href = event.currentTarget.getAttribute('href');
         if (!href || href.charAt(0) !== '#') return;
@@ -492,7 +508,8 @@ export default class extends Controller {
         }
         if (!id) {
             if (restore && this.savedScroll != null) window.scrollTo(0, this.savedScroll);
-            this.layout();
+            if (this.driver) this.driver.activate();
+            else this.layout();
             this.renderDots();
             return;
         }
@@ -504,7 +521,8 @@ export default class extends Controller {
         document.documentElement.classList.add('is-branch-open');
         branch.classList.add('is-open');
         window.scrollTo(0, 0);
-        this.layout();
+        if (this.driver) this.driver.activate();
+        else this.layout();
         branch.querySelectorAll('.scene').forEach((scene) => { scene._shown = null; });
         this.renderDots();
     }
