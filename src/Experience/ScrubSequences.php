@@ -44,6 +44,7 @@ final class ScrubSequences
         ], [
             $this->cue('hero', 0, 0.9, 'center', [
                 'hero' => true,
+                'middle' => true,
                 'view' => true,
                 'kickerPt' => 'DOMO GEODÉSICO NA CHAPADA',
                 'kickerEn' => 'GEODESIC DOME IN CHAPADA',
@@ -91,7 +92,7 @@ final class ScrubSequences
                 'bodyPt' => 'Entre o canto dos pássaros e a vida selvagem do cerrado, o horizonte é todo seu.',
                 'bodyEn' => 'Amid birdsong and the wild life of the cerrado, the horizon is all yours.',
             ]),
-        ], 'posters/01_hero-start.jpg');
+        ], 'posters/01_hero-start.jpg', null, false);
     }
 
     /**
@@ -100,7 +101,7 @@ final class ScrubSequences
     public function estadia(): array
     {
         return $this->finish('estadia', [
-            $this->frames('interior'),
+            $this->frames('interior', 4),
             $this->frames('stay2'),
             $this->still('stay-bed', 'v5/stay-2.jpg'),
             $this->still('falls', 'posters/09_falls-mid.jpg'),
@@ -122,6 +123,7 @@ final class ScrubSequences
             $this->still('breakfast-sunset', 'v5/breakfast-sunset.jpg'),
         ], [
             $this->cue('interior', 0, 0.4, 'center', [
+                'middle' => true,
                 'titlePt' => 'Ficar. Respirar. Ficar mais um pouco.',
                 'titleEn' => 'Stay. Breathe. Stay a little longer.',
                 'action' => 'discover',
@@ -207,7 +209,7 @@ final class ScrubSequences
             $this->cue('breakfast-sunset', 0.18, 0.88, 'center', [
                 'action' => 'choices',
             ]),
-        ], 'v7/stay-1.jpg');
+        ], 'v7/stay-1.jpg', 'v7/stay-1.jpg', true);
     }
 
     /**
@@ -216,7 +218,7 @@ final class ScrubSequences
     public function retiro(): array
     {
         return $this->finish('retiro', [
-            $this->frames('retiro1'),
+            $this->frames('retiro1', 7),
             $this->frames('retiro2'),
             $this->frames('retiro3'),
             $this->still('circle', 'v7/retiro-circle.jpg'),
@@ -224,6 +226,7 @@ final class ScrubSequences
             $this->still('book', 'v7/retiro-circle.jpg'),
         ], [
             $this->cue('retiro1', 0, 0.38, 'center', [
+                'middle' => true,
                 'titlePt' => 'Um lugar com uma energia muito especial.',
                 'titleEn' => 'A place with a very special energy.',
                 'bodyPt' => 'Feito para receber o seu retiro.',
@@ -268,7 +271,7 @@ final class ScrubSequences
                 'bodyEn' => 'No alcohol. And please: don\'t arrive without booking.',
                 'action' => 'retreat',
             ]),
-        ], 'v7/retiro-1.jpg');
+        ], 'v7/retiro-1.jpg', 'v7/retiro-1.jpg', true);
     }
 
     /**
@@ -287,6 +290,7 @@ final class ScrubSequences
             $this->still('cta', 'posters/08d_dome-mid.jpg'),
         ], [
             $this->cue('stairs', 0, 0.55, 'center', [
+                'middle' => true,
                 'titlePt' => 'Jornada com Rajaaram',
                 'titleEn' => 'Journey with Rajaaram',
                 'bodyPt' => 'Cerimônias e massagens, no mesmo chão.',
@@ -319,14 +323,16 @@ final class ScrubSequences
                 'bodyPt' => 'Massagens e sessões com reserva prévia.',
                 'bodyEn' => 'Massages and sessions, booked in advance.',
             ]),
-            $this->cue('cta', 0.12, 0.9, 'center', [
+            $this->cue('cta', 0.08, 1, 'center', [
+                'middle' => true,
+                'hold' => true,
                 'titlePt' => 'Descubra a jornada.',
                 'titleEn' => 'Discover the journey.',
                 'bodyPt' => 'Conheça o Rajaaram ou fale direto com eles.',
                 'bodyEn' => 'Visit Rajaaram, or talk to them directly.',
                 'action' => 'rajaaram',
             ]),
-        ], 'posters/08a_stairs-start.jpg');
+        ], 'posters/08a_stairs-start.jpg', 'posters/08a_stairs-start.jpg', true);
     }
 
     /**
@@ -335,7 +341,7 @@ final class ScrubSequences
      *
      * @return array<string, mixed>
      */
-    private function finish(string $id, array $clips, array $cues, string $veil): array
+    private function finish(string $id, array $clips, array $cues, string $veil, ?string $poster = null, bool $stream = false): array
     {
         $this->assignOverlap($clips);
         $timeline = $this->timeline($clips);
@@ -358,6 +364,7 @@ final class ScrubSequences
         unset($cue);
 
         $still = $this->media->get($veil);
+        $posterUrl = null !== $poster ? $this->media->webp($poster, 828) : null;
         $sequence = [
             'px' => self::PX,
             'clips' => array_map(static function (array $clip): array {
@@ -375,6 +382,8 @@ final class ScrubSequences
             'cues' => $cues,
             'lqip' => $still['lqip'],
             'color' => $still['color'],
+            'poster' => $posterUrl,
+            'stream' => $stream,
         ];
     }
 
@@ -415,21 +424,35 @@ final class ScrubSequences
     /**
      * @return array<string, mixed>
      */
-    private function frames(string $id): array
+    private function frames(string $id, int $offset = 0): array
     {
         $item = $this->manifest()[$id] ?? null;
         if (!is_array($item)) {
             throw new \RuntimeException(sprintf('Missing frame sequence "%s".', $id));
         }
 
-        return [
+        $frames = (int) $item['frames'] - $offset;
+        if ($frames < 2) {
+            throw new \RuntimeException(sprintf('Frame sequence "%s" is too short.', $id));
+        }
+
+        $clip = [
             'id' => $id,
             'kind' => 'frames',
-            'frames' => (int) $item['frames'],
+            'frames' => $frames,
+            'offset' => $offset,
             'm' => $this->packages->getUrl((string) $item['mobile']),
             'd' => $this->packages->getUrl((string) $item['desktop']),
             'overlap' => self::OVERLAP,
         ];
+        $small = dirname($this->manifestPath).'/'.$id.'/s';
+        $preview = is_dir($small) ? count(glob($small.'/*.webp') ?: []) : 0;
+        if ($preview > 0) {
+            $clip['s'] = $this->packages->getUrl('media/experience/seq/'.$id.'/s');
+            $clip['preview'] = $preview;
+        }
+
+        return $clip;
     }
 
     /**
@@ -464,6 +487,8 @@ final class ScrubSequences
             'localTo' => $to,
             'align' => $align,
             'hero' => false,
+            'middle' => false,
+            'hold' => false,
             'view' => false,
             'kickerPt' => null,
             'kickerEn' => null,
