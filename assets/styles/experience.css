@@ -1055,3 +1055,107 @@ html.is-branch-open #reservas { display: none; }
     .fork__actions { flex-direction: column; align-items: center; }
     .fork__actions .pill { width: min(100%, 18rem); }
 }
+
+html.is-booting,
+html.is-booting body {
+    height: 100%;
+    overflow: hidden;
+}
+
+html:not(.is-scrolly) .stage { display: none; }
+
+html.is-scrolly .beats > .scene,
+html.is-scrolly .beats > .fork,
+html.is-scrolly .branch .hub { display: none; }
+
+.stage {
+    position: relative;
+    height: 100svh;
+}
+
+.stage__sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: 100svh;
+    overflow: hidden;
+    background: #14110e;
+}
+
+.stage__canvas,
+.stage__veil,
+.stage__shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.stage__canvas { display: block; }
+
+.stage__veil {
+    z-index: 1;
+    background-position: center;
+    background-size: cover;
+    filter: blur(16px);
+    transform: scale(1.08);
+    transition: opacity 0.45s ease;
+}
+
+.stage.is-live .stage__veil {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.stage__shade {
+    z-index: 2;
+    pointer-events: none;
+    background:
+        linear-gradient(to top, rgba(8, 6, 4, 0.72) 0%, rgba(8, 6, 4, 0.28) 42%, rgba(8, 6, 4, 0.12) 70%, rgba(8, 6, 4, 0.28) 100%),
+        radial-gradient(ellipse at center, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.28) 82%);
+}
+
+.stage__cues {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.stage__cue {
+    position: absolute;
+    left: 7vw;
+    right: 7vw;
+    bottom: 11vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: min(40rem, 86vw);
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity, transform;
+}
+
+.stage__cue a,
+.stage__cue button { pointer-events: auto; }
+
+.stage__cue--left { align-items: flex-start; text-align: left; margin-right: auto; }
+.stage__cue--right { align-items: flex-end; text-align: right; margin-left: auto; }
+.stage__cue--center {
+    left: 50%;
+    right: auto;
+    width: min(40rem, 86vw);
+    transform: translateX(-50%);
+    align-items: center;
+    text-align: center;
+}
+
+html.is-scrolly .stage__cue--hero { opacity: 1; }
+
+.stage__cue--hero .script {
+    font-size: clamp(4.2rem, 14vw, 8rem);
+    line-height: 0.88;
+}
+
+.stage__cue .chapter-nav,
+.stage__cue .fork__actions { pointer-events: auto; }

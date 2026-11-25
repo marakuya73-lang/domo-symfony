@@ -121,15 +121,9 @@
                 <video
                     class="scene__video"
                     data-experience-target="video"
-                    {% if eagerScene %}
-                        src="{{ asset('media/experience/' ~ scene.video) }}"
-                        poster="{{ media(scene.poster).poster }}"
-                        preload="metadata"
-                    {% else %}
-                        data-src="{{ asset('media/experience/' ~ scene.video) }}"
-                        data-poster="{{ media(scene.poster).poster }}"
-                        preload="none"
-                    {% endif %}
+                    data-src="{{ asset('media/experience/' ~ scene.video) }}"
+                    data-poster="{{ media(scene.poster).poster }}"
+                    preload="none"
                     muted
                     playsinline
                     disablepictureinpicture

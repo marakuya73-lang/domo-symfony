@@ -25,6 +25,16 @@ final class MediaManifest
     /**
      * @return array<string, mixed>
      */
+    public function webp(string $relativePath, int $target = 1280): string
+    {
+        $item = $this->items()[$relativePath] ?? null;
+        if (!is_array($item)) {
+            throw new \InvalidArgumentException(sprintf('No responsive image for "%s".', $relativePath));
+        }
+
+        return $this->urlFor($item['webp'] ?? [], $target);
+    }
+
     public function get(string $relativePath): array
     {
         $item = $this->items()[$relativePath] ?? null;
