@@ -99,6 +99,15 @@ final class ExperienceControllerTest extends WebTestCase
         $retiro = $crawler->filter('#branch-retiro')->html();
         self::assertStringContainsString('5561998159838', $retiro);
         self::assertStringNotContainsString('5562999932232', $retiro);
+        self::assertStringContainsString('v7/retiro-1.mp4', $retiro);
+        self::assertStringContainsString('v7/retiro-2.mp4', $retiro);
+        self::assertStringContainsString('v7/retiro-3.mp4', $retiro);
+        self::assertStringContainsString('v7/retiro-circle.jpg', $retiro);
+        self::assertStringContainsString('v7/retiro-gathering.jpg', $retiro);
+        self::assertStringNotContainsString('v5/retreat-1.jpg', $retiro);
+        self::assertStringNotContainsString('9758', $retiro);
+        self::assertStringContainsString('até 23 pessoas', $retiro);
+        self::assertStringContainsString('Sem álcool', $retiro);
         $story = $crawler->filter('.story')->html();
         self::assertStringContainsString('path-4498.mp4', $story);
         self::assertStringNotContainsString('08a_stairs', $story);
@@ -109,12 +118,18 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertLessThan($reservasAt, $hubAt);
         self::assertLessThan($branchAt, $reservasAt);
         self::assertStringNotContainsString('Silêncio para dois', $html);
-        self::assertDoesNotMatchRegularExpression('/<video\b[^>]*\ssrc=/', $html);
-        self::assertStringContainsString('data-src="/media/experience/01_hero.mp4"', $html);
+        self::assertStringContainsString('src="/media/experience/01_hero.mp4"', $html);
+        self::assertStringContainsString('preload="auto"', $html);
+        self::assertStringContainsString('playsinline', $html);
         self::assertStringContainsString('data-src="/media/experience/09_falls.mp4"', $html);
+        self::assertStringContainsString('scroll-snap', (string) file_get_contents(dirname(__DIR__, 2).'/assets/styles/experience.css'));
+        $estadia = $crawler->filter('#branch-estadia')->html();
+        self::assertStringContainsString('v7/stay-1.mp4', $estadia);
+        self::assertStringContainsString('v7/stay-2.mp4', $estadia);
+        self::assertLessThan(strpos($estadia, 'v7/stay-2.mp4'), strpos($estadia, 'v7/stay-1.mp4'));
 
         self::assertSame(
-            ['01', '02a', 'path', '03a'],
+            ['01', '02a', 'path', 'path-pause', '03a'],
             $crawler->filter('.story [data-scene]')->extract(['data-scene']),
         );
         foreach (['04b', '04c', '10a', 'bath-1', 'breakfast', 'breakfast-sunset', 'night-milkyway', 'night-moon-palms'] as $still) {
@@ -183,6 +198,14 @@ final class ExperienceControllerTest extends WebTestCase
             'v5/night-moon-palms.jpg',
             'v5/retreat-1.jpg',
             'v5/journey-1.jpg',
+            'v7/stay-1.mp4',
+            'v7/stay-2.mp4',
+            'v7/stay-1.jpg',
+            'v7/retiro-1.mp4',
+            'v7/retiro-2.mp4',
+            'v7/retiro-3.mp4',
+            'v7/retiro-circle.jpg',
+            'v7/retiro-gathering.jpg',
             'posters/01_hero-start.jpg',
             'posters/09_falls-mid.jpg',
             'stills/hero_end.jpg',

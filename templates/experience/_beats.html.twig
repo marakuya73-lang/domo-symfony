@@ -1,4 +1,9 @@
+{% set sceneCount = 0 %}
 {% for beat in beats %}
+    {% if beat.type == 'scene' %}
+        {% set sceneCount = sceneCount + 1 %}
+    {% endif %}
+    {% set eagerScene = eager|default(false) and beat.type == 'scene' and sceneCount <= 2 %}
     {% if beat.type == 'hub' %}
         {% set hub = beat.hub %}
         <section class="hub{{ hub.ledePt ? ' hub--break' : '' }}" id="{{ hub.id }}" data-hub>
@@ -58,10 +63,40 @@
                 {% endif %}
             </div>
         </section>
+    {% elseif beat.type == 'reel' %}
+        {% set reel = beat.reel %}
+        <section class="reel" id="{{ reel.id }}" data-reel>
+            <div class="reel__track">
+                {% for slide in reel.slides %}
+                    <article class="reel__slide" id="{{ slide.id }}" data-scene="{{ slide.id }}">
+                        <img class="reel__still" src="{{ asset('media/experience/' ~ slide.still) }}" alt="{{ slide.altPt }}" data-alt-pt="{{ slide.altPt }}" data-alt-en="{{ slide.altEn }}" width="1280" height="720" decoding="async" loading="lazy">
+                        {% if slide.video %}
+                            <video class="reel__video" data-src="{{ asset('media/experience/' ~ slide.video) }}" poster="{{ asset('media/experience/' ~ slide.poster) }}" muted playsinline loop preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1" aria-hidden="true"></video>
+                        {% endif %}
+                        <div class="scene__shade" aria-hidden="true"></div>
+                        {% if slide.titlePt or slide.bodyPt %}
+                            <div class="reel__copy">
+                                {% if slide.titlePt %}
+                                    <h2 class="script"><span class="t-pt">{{ slide.titlePt }}</span><span class="t-en">{{ slide.titleEn }}</span></h2>
+                                {% endif %}
+                                {% if slide.bodyPt %}
+                                    <p class="body"><span class="t-pt">{{ slide.bodyPt }}</span><span class="t-en">{{ slide.bodyEn }}</span></p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+            <div class="reel__dots" aria-hidden="true">
+                {% for slide in reel.slides %}
+                    <button type="button" class="reel__dot" data-action="experience#reelDot" data-slide="{{ slide.id }}"><span class="t-pt">{{ loop.index }}</span><span class="t-en">{{ loop.index }}</span></button>
+                {% endfor %}
+            </div>
+        </section>
     {% else %}
         {% set scene = beat.scene %}
         <section
-            class="scene scene--{{ scene.align }}{{ scene.hero ? ' scene--hero is-current' : '' }}{{ scene.finale ? ' scene--finale' : '' }}{{ scene.placeholder ? ' scene--placeholder' : '' }}"
+            class="scene scene--{{ scene.align }}{{ scene.hero ? ' scene--hero is-current is-settled' : '' }}{{ scene.finale ? ' scene--finale' : '' }}{{ scene.pause ? ' scene--pause' : '' }}"
             id="{{ scene.anchor ?: scene.id }}"
             data-scene="{{ scene.id }}"
             data-experience-target="scene"
@@ -83,23 +118,30 @@
                     width="1280"
                     height="720"
                     decoding="async"
-                    {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                    {% if eagerScene %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
                 >
                 {% if scene.video %}
                 <video
                     class="scene__video"
                     data-experience-target="video"
-                    data-src="{{ asset('media/experience/' ~ scene.video) }}"
+                    {% if eagerScene %}
+                        src="{{ asset('media/experience/' ~ scene.video) }}"
+                        preload="{{ sceneCount == 1 ? 'auto' : 'metadata' }}"
+                    {% else %}
+                        data-src="{{ asset('media/experience/' ~ scene.video) }}"
+                        preload="metadata"
+                    {% endif %}
                     poster="{{ asset('media/experience/' ~ scene.poster) }}"
                     muted
                     playsinline
-                    preload="none"
+                    loop
                     disablepictureinpicture
                     disableremoteplayback
                     tabindex="-1"
                     aria-hidden="true"
                 ></video>
                 {% endif %}
+                <button type="button" class="scene__expand" data-action="experience#expand" aria-label="Ampliar"><span class="t-pt">Ampliar</span><span class="t-en">Expand</span></button>
                 <div class="scene__shade" aria-hidden="true"></div>
 
                 {% if scene.titlePt or scene.bodyPt or scene.kickerPt or scene.hero or scene.finale or scene.backHub or scene.choices or scene.cta %}
