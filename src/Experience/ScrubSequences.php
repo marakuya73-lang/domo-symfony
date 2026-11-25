@@ -189,6 +189,7 @@ final class ScrubSequences
                 'bodyPt' => 'Sob pedido, com canto de pássaros e o cerrado acordando.',
                 'bodyEn' => 'On request, with birdsong and the cerrado waking up.',
                 'action' => 'choices',
+                'closing' => true,
             ]),
         ], 'v7/stay-1.jpg', 'v7/stay-1.jpg', true);
     }
@@ -213,9 +214,7 @@ final class ScrubSequences
                 'bodyPt' => 'Feito para o seu Retiro.',
                 'bodyEn' => 'Made for your retreat.',
                 'action' => 'discover',
-                'discoverHref' => '#retiro-energy',
-                'discoverPt' => 'Descobrir o Retiro',
-                'discoverEn' => 'Discover the retreat',
+                'hint' => true,
                 'scrubClip' => 'retiro1',
                 'scrubLocal' => 0.52,
             ]),
@@ -251,6 +250,7 @@ final class ScrubSequences
                 'bodyPt' => 'Sem álcool. Por favor, não apareça sem agendar.',
                 'bodyEn' => 'No alcohol. Please don\'t arrive without booking.',
                 'action' => 'retreat',
+                'closing' => true,
             ]),
         ], 'v7/retiro-1.jpg', 'v7/retiro-1.jpg', true);
     }
@@ -261,30 +261,26 @@ final class ScrubSequences
     public function jornada(): array
     {
         return $this->finish('jornada', [
-            $this->frames('stairs'),
-            $this->frames('sign'),
-            $this->frames('gate'),
-            $this->frames('rajaaram'),
+            $this->still('opening', 'v5/journey-3.jpg'),
+            $this->sharp($this->frames('stairs')),
+            $this->sharp($this->frames('sign')),
+            $this->sharp($this->frames('rajaaram')),
             $this->still('hands', 'v5/journey-1.jpg'),
             $this->still('altar', 'v5/journey-3.jpg'),
             $this->still('massage', 'v5/journey-2.jpg'),
             $this->still('cta', 'posters/08d_dome-mid.jpg'),
         ], [
-            $this->cue('stairs', 0, 0.55, 'center', [
+            $this->cue('opening', 0, 0.88, 'center', [
                 'middle' => true,
                 'titlePt' => 'Jornada com Rajaaram',
                 'titleEn' => 'Journey with Rajaaram',
                 'bodyPt' => 'Cerimônias e massagens, no mesmo chão.',
                 'bodyEn' => 'Ceremonies and massages, on the same land.',
                 'action' => 'discover',
-                'discoverHref' => '#jornada-stairs',
-                'discoverPt' => 'Descobrir a jornada',
-                'discoverEn' => 'Discover the journey',
+                'hint' => true,
                 'rajaaram' => true,
-                'scrubClip' => 'stairs',
-                'scrubLocal' => 0.62,
             ]),
-            $this->cue('stairs', 0.6, 0.94, 'right', [
+            $this->cue('stairs', 0.14, 0.88, 'right', [
                 'titlePt' => 'Desça a colina. Ainda tem mais.',
                 'titleEn' => 'Walk down the hill. There\'s still more.',
                 'bodyPt' => 'No mesmo chão, o Rajaaram espera.',
@@ -312,8 +308,9 @@ final class ScrubSequences
                 'bodyPt' => 'Conheça o Rajaaram ou fale com eles direto.',
                 'bodyEn' => 'Meet Rajaaram, or talk with them directly.',
                 'action' => 'rajaaram',
+                'closing' => true,
             ]),
-        ], 'posters/08a_stairs-start.jpg', 'posters/08a_stairs-start.jpg', true);
+        ], 'v5/journey-3.jpg', 'v5/journey-3.jpg', true);
     }
 
     /**
@@ -437,6 +434,24 @@ final class ScrubSequences
     }
 
     /**
+     * Phone screens scale a 720-wide frame up to the full height, which
+     * looks soft. These clips already have a 1280 sequence, so use it.
+     *
+     * @param array<string, mixed> $clip
+     *
+     * @return array<string, mixed>
+     */
+    private function sharp(array $clip): array
+    {
+        if ('frames' === ($clip['kind'] ?? '') && isset($clip['d'])) {
+            $clip['m'] = $clip['d'];
+            unset($clip['s'], $clip['preview']);
+        }
+
+        return $clip;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function still(string $id, string $path): array
@@ -487,6 +502,7 @@ final class ScrubSequences
             'discoverEn' => null,
             'rajaaram' => false,
             'hint' => false,
+            'closing' => false,
             'scrubClip' => null,
             'scrubLocal' => null,
         ], $extra);

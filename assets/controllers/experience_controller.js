@@ -39,7 +39,11 @@ export default class extends Controller {
             this.refreshVisibility();
             this.onHint = () => {
                 this.element.querySelectorAll('.scroll-hint').forEach((hint) => {
-                    hint.classList.toggle('is-gone', window.scrollY > 8);
+                    const host = hint.closest('.scene, .fork, .stage__cue');
+                    if (!host) return;
+                    const rect = host.getBoundingClientRect();
+                    const through = rect.height > 0 ? Math.min(1, Math.max(0, -rect.top / rect.height)) : 0;
+                    hint.classList.toggle('is-gone', through > 0.18);
                 });
             };
             window.addEventListener('scroll', this.onHint, { passive: true });
