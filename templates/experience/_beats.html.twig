@@ -57,8 +57,16 @@
                 {% if fork.bodyPt %}
                     <p class="body"><span class="t-pt">{{ fork.bodyPt }}</span><span class="t-en">{{ fork.bodyEn }}</span></p>
                 {% endif %}
+                {% if fork.scrollHint %}
+                    <div class="scroll-hint" aria-hidden="true">
+                        <span class="scroll-hint__mouse"><span class="scroll-hint__wheel"></span></span>
+                        <span class="scroll-hint__label"><span class="t-pt">role</span><span class="t-en">scroll</span></span>
+                    </div>
+                {% endif %}
                 <div class="fork__actions">
-                    <a class="pill" href="{{ fork.discoverHref }}" data-action="experience#jump"><span class="t-pt">{{ fork.discoverPt }}</span><span class="t-en">{{ fork.discoverEn }}</span></a>
+                    {% if not fork.scrollHint %}
+                        <a class="pill" href="{{ fork.discoverHref }}" data-action="experience#jump"><span class="t-pt">{{ fork.discoverPt }}</span><span class="t-en">{{ fork.discoverEn }}</span></a>
+                    {% endif %}
                     <a class="pill pill--ghost" href="#reservas" data-action="experience#leaveBranch"><span class="t-pt">Reservar agora</span><span class="t-en">Book now</span></a>
                 </div>
                 {% if fork.rajaaram %}

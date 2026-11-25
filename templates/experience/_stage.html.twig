@@ -42,8 +42,16 @@
                             <span class="t-pt">RESERVAR O DOMO</span><span class="t-en">BOOK THE DOME</span>
                         </a>
                     {% elseif cue.action == 'discover' %}
+                        {% if cue.hint %}
+                            <div class="scroll-hint" aria-hidden="true">
+                                <span class="scroll-hint__mouse"><span class="scroll-hint__wheel"></span></span>
+                                <span class="scroll-hint__label"><span class="t-pt">role</span><span class="t-en">scroll</span></span>
+                            </div>
+                        {% endif %}
                         <div class="fork__actions">
-                            <a class="pill" href="{{ cue.discoverHref }}" data-scrub="{{ cue.scrub }}" data-action="experience#scrubTo"><span class="t-pt">{{ cue.discoverPt }}</span><span class="t-en">{{ cue.discoverEn }}</span></a>
+                            {% if not cue.hint %}
+                                <a class="pill" href="{{ cue.discoverHref }}" data-scrub="{{ cue.scrub }}" data-action="experience#scrubTo"><span class="t-pt">{{ cue.discoverPt }}</span><span class="t-en">{{ cue.discoverEn }}</span></a>
+                            {% endif %}
                             <a class="pill pill--ghost" href="#reservas" data-action="experience#leaveBranch"><span class="t-pt">Reservar agora</span><span class="t-en">Book now</span></a>
                         </div>
                         {% if cue.rajaaram %}

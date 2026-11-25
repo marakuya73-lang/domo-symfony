@@ -122,14 +122,12 @@ final class ScrubSequences
         ], [
             $this->cue('interior', 0, 0.4, 'center', [
                 'middle' => true,
-                'titlePt' => 'Fique. Respire. Fique mais um pouco.',
-                'titleEn' => 'Stay. Breathe. Stay a little longer.',
+                'titlePt' => 'Estadia',
+                'titleEn' => 'Stay',
+                'bodyPt' => 'Um domo só seu, de frente para o vale.',
+                'bodyEn' => 'A dome all yours, facing the valley.',
                 'action' => 'discover',
-                'discoverHref' => '#estadia-dream',
-                'discoverPt' => 'Descobrir o domo',
-                'discoverEn' => 'Discover the dome',
-                'scrubClip' => 'interior',
-                'scrubLocal' => 0.55,
+                'hint' => true,
             ]),
             $this->cue('falls', 0.14, 0.86, 'right', [
                 'titlePt' => 'A dez minutos, a água fria te chama.',
@@ -488,6 +486,7 @@ final class ScrubSequences
             'discoverPt' => null,
             'discoverEn' => null,
             'rajaaram' => false,
+            'hint' => false,
             'scrubClip' => null,
             'scrubLocal' => null,
         ], $extra);

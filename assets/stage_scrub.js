@@ -358,6 +358,9 @@ export default class StageScrub {
             cue.style.transform = `${shift}translate3d(0, ${y.toFixed(2)}px, 0)`;
             cue.style.pointerEvents = opacity > 0.8 ? 'auto' : 'none';
         });
+        this.stage.querySelectorAll('.scroll-hint').forEach((hint) => {
+            hint.classList.toggle('is-gone', this.target() > 0.6);
+        });
     }
 
     resizeCanvas() {

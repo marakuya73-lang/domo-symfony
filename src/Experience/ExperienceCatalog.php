@@ -137,16 +137,17 @@ final class ExperienceCatalog
         return [
             Beat::fork(new Fork(
                 id: 'estadia-fork',
-                titlePt: 'Fique. Respire. Fique mais um pouco.',
-                titleEn: 'Stay. Breathe. Stay a little longer.',
-                bodyPt: null,
-                bodyEn: null,
+                titlePt: 'Estadia',
+                titleEn: 'Stay',
+                bodyPt: 'Um domo só seu, de frente para o vale.',
+                bodyEn: 'A dome all yours, facing the valley.',
                 still: 'posters/03a_orbit-mid.jpg',
                 altPt: 'O domo diante do vale',
                 altEn: 'The dome before the valley',
                 discoverHref: '#estadia-dream',
                 discoverPt: 'Descobrir o domo',
                 discoverEn: 'Discover the dome',
+                scrollHint: true,
             )),
             Beat::scene(new Scene(
                 id: 'stay-1',
