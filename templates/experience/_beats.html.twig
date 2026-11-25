@@ -78,7 +78,7 @@
                     <article class="reel__slide" id="{{ slide.id }}" data-scene="{{ slide.id }}">
                         {{ pic.still(slide.still, slide.altPt, slide.altEn, 'reel__still', false, '100vw') }}
                         {% if slide.video %}
-                            <video class="reel__video" data-src="{{ asset('media/experience/' ~ slide.video) }}" data-poster="{{ media(slide.poster).poster }}" muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback tabindex="-1" aria-hidden="true"></video>
+                            <video class="reel__video" data-src="{{ asset('media/experience/' ~ slide.video) }}" data-poster="{{ media(slide.poster).poster }}" muted playsinline preload="none" disablepictureinpicture disableremoteplayback tabindex="-1" aria-hidden="true"></video>
                         {% endif %}
                         <div class="scene__shade" aria-hidden="true"></div>
                         {% if slide.titlePt or slide.bodyPt %}
@@ -132,14 +132,12 @@
                     {% endif %}
                     muted
                     playsinline
-                    loop
                     disablepictureinpicture
                     disableremoteplayback
                     tabindex="-1"
                     aria-hidden="true"
                 ></video>
                 {% endif %}
-                <button type="button" class="scene__expand" data-action="experience#expand" aria-label="Ampliar"><span class="t-pt">Ampliar</span><span class="t-en">Expand</span></button>
                 <div class="scene__shade" aria-hidden="true"></div>
 
                 {% if scene.titlePt or scene.bodyPt or scene.kickerPt or scene.hero or scene.finale or scene.backHub or scene.choices or scene.cta %}
