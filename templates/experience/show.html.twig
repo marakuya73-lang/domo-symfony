@@ -1,22 +1,23 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros{% endblock %}
-{% block title_attrs %} data-pt="Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros" data-en="Domo Xangô · The best view in the world | Chapada dos Veadeiros"{% endblock %}
+{% block title %}Domo Xangô, a melhor vista do mundo, Chapada dos Veadeiros{% endblock %}
+{% block title_attrs %} data-pt="Domo Xangô, a melhor vista do mundo, Chapada dos Veadeiros" data-en="Domo Xangô, the best view in the world, Chapada dos Veadeiros"{% endblock %}
 
 {% block meta %}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="A melhor vista do mundo. Domo geodésico privativo em Alto Paraíso de Goiás, na Chapada dos Veadeiros. A partir de R$ 550/noite." data-pt="A melhor vista do mundo. Domo geodésico privativo em Alto Paraíso de Goiás, na Chapada dos Veadeiros. A partir de R$ 550/noite." data-en="The best view in the world. A private geodesic dome in Alto Paraíso de Goiás, Chapada dos Veadeiros. From R$ 550/night.">
     <link rel="canonical" href="{{ url('experience_home') }}">
     <meta property="og:url" content="{{ url('experience_home') }}">
-    <meta property="og:title" content="Domo Xangô · A melhor vista do mundo | Chapada dos Veadeiros">
+    <meta property="og:title" content="Domo Xangô, a melhor vista do mundo, Chapada dos Veadeiros">
     <meta property="og:description" content="A melhor vista do mundo. Domo geodésico privativo em Alto Paraíso de Goiás, na Chapada dos Veadeiros.">
     <meta property="og:image" content="{{ absolute_url(asset('media/experience/posters/01_hero-mid.jpg')) }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dosis:wght@300;500&family=Herr+Von+Muellerhoff&display=swap">
-    <link rel="preload" as="image" href="{{ asset('media/experience/posters/01_hero-start.jpg') }}">
-    <link rel="preload" as="image" href="{{ asset('media/experience/posters/02a_hill-start.jpg') }}">
-    <link rel="preload" as="video" href="{{ asset('media/experience/01_hero.mp4') }}">
+    {% set heroStill = media('posters/01_hero-mid.jpg') %}
+    {% set heroPoster = media('posters/01_hero-start.jpg') %}
+    <link rel="preload" as="image" href="{{ heroStill.w480 }}" imagesrcset="{{ heroStill.avif }}" imagesizes="100vw" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ heroPoster.w480 }}" imagesrcset="{{ heroPoster.avif }}" imagesizes="100vw">
     <script>
         (function () {
             var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -105,7 +106,7 @@
                     <span class="t-en">Here you don't just stay. You slow down, breathe deeply and remember what matters.</span>
                 </p>
                 <p class="paper-price"><span class="t-pt">A partir de R$ 550/noite</span><span class="t-en">From R$ 550/night</span></p>
-                <p class="paper-meta"><span class="t-pt">Check-in 14h–18h · 5 hóspedes (até 7 com cama queen extra, em reserva direta)</span><span class="t-en">Check-in 2–6 pm · 5 guests (up to 7 with an extra queen bed, when you book directly)</span></p>
+                <p class="paper-meta"><span class="t-pt">Check-in 14h às 18h. 5 hóspedes (até 7 com cama queen extra, em reserva direta).</span><span class="t-en">Check-in 2 to 6 pm. 5 guests (up to 7 with an extra queen bed, when you book directly).</span></p>
                 <a class="pill js-wa" href="{{ links.stayPt }}" data-wa-pt="{{ links.stayPt }}" data-wa-en="{{ links.stayEn }}" target="_blank" rel="noopener noreferrer">
                     <span class="t-pt">RESERVAR O DOMO</span><span class="t-en">BOOK THE DOME</span>
                 </a>
@@ -140,13 +141,13 @@
                 <div>
                     <dt><span class="t-pt">Bom saber</span><span class="t-en">Good to know</span></dt>
                     <dd>
-                        <span class="t-pt">14 km de Alto Paraíso, carro alto recomendado, trilha de 100 m em subida; não recomendado para crianças pequenas (deck sem guarda-corpo). Visitas somente com reserva confirmada. Por favor, não apareça sem agendar.</span>
-                        <span class="t-en">14 km from Alto Paraíso, high-clearance car recommended, a 100 m uphill path; not recommended for young children (deck without railings). Visits by confirmed reservation only. Please don't arrive without booking.</span>
+                        <span class="t-pt">14 km de Alto Paraíso, carro alto recomendado, trilha de 100 m em subida. Não recomendado para crianças pequenas (deck sem guarda-corpo). Visitas somente com reserva confirmada. Por favor, não apareça sem agendar.</span>
+                        <span class="t-en">14 km from Alto Paraíso, high-clearance car recommended, a 100 m uphill path. Not recommended for young children (deck without railings). Visits by confirmed reservation only. Please don't arrive without booking.</span>
                     </dd>
                 </div>
             </dl>
 
-            <p class="colophon">Domo Xangô · Alto Paraíso de Goiás · Chapada dos Veadeiros</p>
+            <p class="colophon">Domo Xangô, Alto Paraíso de Goiás, Chapada dos Veadeiros</p>
         </div>
     </section>
 

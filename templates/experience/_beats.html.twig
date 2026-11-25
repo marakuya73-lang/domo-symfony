@@ -1,4 +1,10 @@
+{% import 'experience/_picture.html.twig' as pic %}
 {% set sceneCount = 0 %}
+{% set branchFirst = {
+    'estadia': 'v7/stay-1.jpg',
+    'retiro': 'v7/retiro-1.jpg',
+    'jornada': 'posters/08a_stairs-start.jpg'
+} %}
 {% for beat in beats %}
     {% if beat.type == 'scene' %}
         {% set sceneCount = sceneCount + 1 %}
@@ -8,7 +14,7 @@
         {% set hub = beat.hub %}
         <section class="hub{{ hub.ledePt ? ' hub--break' : '' }}" id="{{ hub.id }}" data-hub>
             {% if hub.image %}
-                <img class="hub__bg" src="{{ asset('media/experience/' ~ hub.image) }}" alt="" width="1280" height="720" decoding="async">
+                {{ pic.still(hub.image, '', '', 'hub__bg', false, '100vw') }}
                 <div class="hub__shade" aria-hidden="true"></div>
             {% endif %}
             <div class="hub__inner">
@@ -23,12 +29,13 @@
                             href="{{ card.branch ? '#branch-' ~ card.branch : card.href }}"
                             {% if card.branch %}
                                 data-branch="{{ card.branch }}"
+                                data-prefetch="{{ media(branchFirst[card.branch]).w480 }} {{ media(card.image).w480 }}"
                                 data-action="experience#openBranch"
                             {% else %}
                                 data-action="experience#jump"
                             {% endif %}
                         >
-                            <img src="{{ asset('media/experience/' ~ card.image) }}" alt="{{ card.altPt }}" data-alt-pt="{{ card.altPt }}" data-alt-en="{{ card.altEn }}" width="640" height="360" loading="lazy" decoding="async">
+                            {{ pic.still(card.image, card.altPt, card.altEn, 'hub-card__img', false, '(max-width: 700px) 120px, 30vw') }}
                             <span class="hub-card__text">
                                 <span class="hub-card__title"><span class="t-pt">{{ card.titlePt }}</span><span class="t-en">{{ card.titleEn }}</span></span>
                                 {% if card.linePt %}
@@ -43,7 +50,7 @@
     {% elseif beat.type == 'fork' %}
         {% set fork = beat.fork %}
         <section class="fork" id="{{ fork.id }}" data-fork>
-            <img class="fork__bg" src="{{ asset('media/experience/' ~ fork.still) }}" alt="{{ fork.altPt }}" data-alt-pt="{{ fork.altPt }}" data-alt-en="{{ fork.altEn }}" width="1280" height="720" decoding="async">
+            {{ pic.still(fork.still, fork.altPt, fork.altEn, 'fork__bg', false, '100vw') }}
             <div class="fork__shade" aria-hidden="true"></div>
             <div class="fork__copy">
                 <h2 class="script"><span class="t-pt">{{ fork.titlePt }}</span><span class="t-en">{{ fork.titleEn }}</span></h2>
@@ -69,9 +76,9 @@
             <div class="reel__track">
                 {% for slide in reel.slides %}
                     <article class="reel__slide" id="{{ slide.id }}" data-scene="{{ slide.id }}">
-                        <img class="reel__still" src="{{ asset('media/experience/' ~ slide.still) }}" alt="{{ slide.altPt }}" data-alt-pt="{{ slide.altPt }}" data-alt-en="{{ slide.altEn }}" width="1280" height="720" decoding="async" loading="lazy">
+                        {{ pic.still(slide.still, slide.altPt, slide.altEn, 'reel__still', false, '100vw') }}
                         {% if slide.video %}
-                            <video class="reel__video" data-src="{{ asset('media/experience/' ~ slide.video) }}" poster="{{ asset('media/experience/' ~ slide.poster) }}" muted playsinline loop preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1" aria-hidden="true"></video>
+                            <video class="reel__video" data-src="{{ asset('media/experience/' ~ slide.video) }}" data-poster="{{ media(slide.poster).poster }}" muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback tabindex="-1" aria-hidden="true"></video>
                         {% endif %}
                         <div class="scene__shade" aria-hidden="true"></div>
                         {% if slide.titlePt or slide.bodyPt %}
@@ -96,7 +103,7 @@
     {% else %}
         {% set scene = beat.scene %}
         <section
-            class="scene scene--{{ scene.align }}{{ scene.hero ? ' scene--hero is-current is-settled' : '' }}{{ scene.finale ? ' scene--finale' : '' }}{{ scene.pause ? ' scene--pause' : '' }}"
+            class="scene scene--{{ scene.align }}{{ scene.hero ? ' scene--hero is-current is-readable' : '' }}{{ scene.finale ? ' scene--finale' : '' }}{{ scene.pause ? ' scene--pause' : '' }}"
             id="{{ scene.anchor ?: scene.id }}"
             data-scene="{{ scene.id }}"
             data-experience-target="scene"
@@ -108,30 +115,21 @@
             data-alt-pt="{{ scene.altPt }}"
             data-alt-en="{{ scene.altEn }}"
         >
-            <div class="scene__pin">
-                <img
-                    class="scene__still"
-                    src="{{ asset('media/experience/' ~ scene.still) }}"
-                    alt="{{ scene.altPt }}"
-                    data-alt-pt="{{ scene.altPt }}"
-                    data-alt-en="{{ scene.altEn }}"
-                    width="1280"
-                    height="720"
-                    decoding="async"
-                    {% if eagerScene %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
-                >
+            <div class="scene__pin" style="background-color: {{ media(scene.still).color }}">
+                {{ pic.still(scene.still, scene.altPt, scene.altEn, 'scene__still', eagerScene, '100vw') }}
                 {% if scene.video %}
                 <video
                     class="scene__video"
                     data-experience-target="video"
                     {% if eagerScene %}
                         src="{{ asset('media/experience/' ~ scene.video) }}"
-                        preload="{{ sceneCount == 1 ? 'auto' : 'metadata' }}"
+                        poster="{{ media(scene.poster).poster }}"
+                        preload="metadata"
                     {% else %}
                         data-src="{{ asset('media/experience/' ~ scene.video) }}"
-                        preload="metadata"
+                        data-poster="{{ media(scene.poster).poster }}"
+                        preload="none"
                     {% endif %}
-                    poster="{{ asset('media/experience/' ~ scene.poster) }}"
                     muted
                     playsinline
                     loop

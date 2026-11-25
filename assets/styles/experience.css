@@ -241,17 +241,9 @@ html[lang^="en"] .t-en { display: inline; }
     overflow: hidden;
 }
 
-html.is-scrolly .scene,
-html.is-scrolly .fork,
-html.is-scrolly .hub,
-html.is-scrolly .reel {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-}
-
 html.is-scrolly .scene {
-    height: 100svh;
-    min-height: 100svh;
+    height: 138vh;
+    overflow: visible;
 }
 
 .scene__pin {
@@ -265,11 +257,16 @@ html.is-scrolly .scene {
 }
 
 html.is-scrolly .scene__pin {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
     min-height: 0;
-    height: 100%;
+    height: 100svh;
+    visibility: hidden;
+}
+
+html.is-scrolly .scene.is-current .scene__pin,
+html.is-scrolly .scene.is-cross .scene__pin {
     visibility: visible;
 }
 
@@ -333,8 +330,8 @@ html.is-scrolly .fine {
     transition: opacity 0.55s ease, transform 0.55s ease;
 }
 
-html.is-scrolly .scene.is-settled .scene__copy,
-html.is-scrolly .scene.is-settled .fine {
+html.is-scrolly .scene.is-readable .scene__copy,
+html.is-scrolly .scene.is-readable .fine {
     opacity: 1;
     transform: none;
 }
@@ -481,11 +478,12 @@ html.is-scrolly .scene.is-settled .fine {
     overflow: hidden;
 }
 
-.hub-card img {
+.hub-card .media {
+    position: relative;
+    display: block;
     width: 100%;
     aspect-ratio: 16 / 10;
-    object-fit: cover;
-    display: block;
+    overflow: hidden;
 }
 
 .hub-card__text {
@@ -789,7 +787,7 @@ html.is-scrolly .scene.is-settled .fine {
         text-align: left;
         align-items: stretch;
     }
-    .hub--break .hub-card img {
+    .hub--break .hub-card .media {
         width: 7.4rem;
         aspect-ratio: 1;
         flex: none;
@@ -857,26 +855,14 @@ html.is-scrolly .scene.is-settled .fine {
     html.is-scrolly .scene--finale .scene__still { opacity: 1 !important; }
 }
 
-html:has(.experience) {
-    scroll-snap-type: y proximity;
-}
-
-@media (max-width: 760px) {
-    html:has(.experience) { scroll-snap-type: y mandatory; }
-}
-
 .scene,
 .fork,
 .hub,
-.reel {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
+.reel,
+#reservas {
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
 }
-
-.hub,
-#reservas { scroll-snap-stop: normal; }
-
-#reservas { scroll-snap-align: none; }
 
 .scene--pause .scene__still {
     filter: blur(18px);
@@ -947,7 +933,7 @@ html:has(.experience) {
     display: flex;
     height: 100%;
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    scroll-snap-type: x proximity;
     scrollbar-width: none;
 }
 
@@ -1038,10 +1024,45 @@ html:has(.experience) {
     cursor: pointer;
 }
 
+.scene__pin,
+.fork,
+.hub,
+.reel__slide {
+    background-color: #3c342c;
+}
+
+.fork > .media,
+.hub > .media,
+.reel__slide > .media,
+.scene__pin > .media {
+    position: absolute;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+}
+
+.media__picture {
+    position: absolute;
+    inset: 0;
+    display: block;
+}
+
+.media__full {
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+
+.media__full.is-loaded { opacity: 1; }
+
+.media__lqip {
+    filter: blur(14px);
+    transform: scale(1.14);
+}
+
 @media (hover: hover) and (pointer: fine) {
-    html.is-scrolly .scene.is-settled .scene__still {
+    html.is-scrolly .scene.is-settled .media__full.scene__still {
         transform: scale(1.05);
-        transition: transform 1.6s ease;
+        transition: transform 1.6s ease, opacity 0.45s ease;
     }
 }
 
@@ -1049,7 +1070,9 @@ html:has(.experience) {
     html:has(.experience) { scroll-behavior: auto; }
     .scene__copy,
     .reel__copy,
-    .scene__still { transition: none !important; transform: none !important; }
+    .scene__still,
+    .media__full { transition: none !important; transform: none !important; opacity: 1 !important; }
+    .media__lqip { display: none; }
     .scene--pause .scene__still { filter: none; }
 }
 

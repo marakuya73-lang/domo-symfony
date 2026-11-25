@@ -1,0 +1,28 @@
+{% macro still(path, altPt, altEn, class, eager, sizes) %}
+    {% set m = media(path) %}
+    <span class="media" style="background-color: {{ m.color }}" data-tone="{{ m.color }}">
+        <img class="{{ class }} media__lqip" src="{{ m.lqip }}" alt="" width="{{ m.width }}" height="{{ m.height }}" decoding="async" aria-hidden="true">
+        <picture class="media__picture">
+            <source type="image/avif" srcset="{{ m.avif }}" sizes="{{ sizes }}">
+            <source type="image/webp" srcset="{{ m.webp }}" sizes="{{ sizes }}">
+            <img
+                class="{{ class }} media__full"
+                src="{{ m.src }}"
+                srcset="{{ m.jpg }}"
+                sizes="{{ sizes }}"
+                width="{{ m.width }}"
+                height="{{ m.height }}"
+                alt="{{ altPt }}"
+                data-alt-pt="{{ altPt }}"
+                data-alt-en="{{ altEn }}"
+                data-source="{{ asset('media/experience/' ~ path) }}"
+                data-w480="{{ m.w480 }}"
+                data-w828="{{ m.w828 }}"
+                data-w1280="{{ m.w1280 }}"
+                decoding="async"
+                {% if eager %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                onload="this.classList.add('is-loaded')"
+            >
+        </picture>
+    </span>
+{% endmacro %}
