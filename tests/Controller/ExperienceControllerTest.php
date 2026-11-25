@@ -70,7 +70,7 @@ final class ExperienceControllerTest extends WebTestCase
         self::assertStringContainsString('Back to choices', $html);
         self::assertStringContainsString('Descobrir o domo', $html);
         self::assertStringContainsString('Discover the dome', $html);
-        self::assertStringContainsString('Descobrir retiros', $html);
+        self::assertStringContainsString('Descobrir o Retiro', $html);
         self::assertStringNotContainsString('Seguir a jornada', $html);
         self::assertStringContainsString('href="#chapter-dome"', $html);
         self::assertStringContainsString('href="#chapter-bath"', $html);
