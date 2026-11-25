@@ -242,8 +242,8 @@ html[lang^="en"] .t-en { display: inline; }
 }
 
 html.is-scrolly .scene {
-    height: 138vh;
-    overflow: visible;
+    height: 90svh;
+    overflow: hidden;
 }
 
 .scene__pin {
@@ -257,17 +257,13 @@ html.is-scrolly .scene {
 }
 
 html.is-scrolly .scene__pin {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: 1;
     min-height: 0;
-    height: 100svh;
-    visibility: hidden;
-}
-
-html.is-scrolly .scene.is-current .scene__pin,
-html.is-scrolly .scene.is-cross .scene__pin {
+    height: 100%;
     visibility: visible;
+    opacity: 1;
 }
 
 .scene--left .scene__pin { justify-items: start; padding-right: 14vw; }
@@ -970,13 +966,6 @@ html.is-scrolly .scene.is-readable .fine {
     display: flex;
     justify-content: center;
     gap: 0.4rem;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    html.is-scrolly .scene.is-settled .media__full.scene__still {
-        transform: scale(1.05);
-        transition: transform 1.6s ease, opacity 0.45s ease;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {

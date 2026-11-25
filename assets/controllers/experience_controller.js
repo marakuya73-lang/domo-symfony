@@ -1,8 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
 
 /**
- * Short scroll scenes. The picture shifts and crossfades with the scroll.
- * Copy arrives near the end of each scene and stays readable there.
+ * Each scene is under one viewport tall and scrolls with the page.
+ * A clip's currentTime follows that scroll. Until the seek lands, the
+ * still zooms with the scroll instead of sitting frozen.
  */
 export default class extends Controller {
     static targets = ['scene', 'video', 'story', 'reservas', 'book', 'bookButton', 'bookMenu', 'steps'];
@@ -45,10 +46,9 @@ export default class extends Controller {
 
     layout() {
         const vh = window.innerHeight || 800;
+        // One scene is 0.9 viewport of scroll. Nothing stays pinned past that.
         this.sceneTargets.forEach((scene) => {
-            const requested = Number(scene.dataset.travel);
-            const travel = Math.min(Number.isFinite(requested) ? requested : 40, 48);
-            scene.style.height = `${Math.round(vh + vh * (travel / 100))}px`;
+            scene.style.height = `${Math.round(vh * 0.9)}px`;
         });
         this.needsPaint = true;
     }
@@ -61,50 +61,34 @@ export default class extends Controller {
     paintScroll() {
         const scenes = this.liveFrames();
         if (!scenes.length) return;
-        const y = window.scrollY;
         const vh = window.innerHeight || 800;
-        let active = -1;
-        scenes.forEach((scene, index) => {
-            if (y + vh * 0.25 >= this.docTop(scene)) active = index;
-        });
-        scenes.forEach((scene, index) => {
-            const top = this.docTop(scene);
-            const range = Math.max(1, scene.offsetHeight - vh);
-            const raw = Math.min(1, Math.max(0, (y - top) / range));
-            const shown = scene._shown == null ? raw : scene._shown + (raw - scene._shown) * 0.34;
-            scene._shown = Math.abs(shown - raw) < 0.0015 ? raw : shown;
-            const eased = scene._shown;
-            const current = active >= 0 && index === active;
-            const incoming = active >= 0 && index === active + 1;
-            const previous = scenes[index - 1];
-            const previousEase = previous?._shown ?? 0;
-            let opacity = 0;
-            if (current) opacity = eased < 0.9 ? 1 : Math.max(0, 1 - (eased - 0.9) / 0.1);
-            if (incoming) opacity = previousEase < 0.9 ? 0 : Math.min(1, (previousEase - 0.9) / 0.1);
-            const pin = scene.querySelector('.scene__pin');
-            if (pin) {
-                const visible = opacity > 0.03;
-                pin.style.visibility = visible ? 'visible' : 'hidden';
-                pin.style.opacity = String(opacity);
-                pin.style.zIndex = String(2 + index);
-            }
-            scene.classList.toggle('is-current', current);
-            scene.classList.toggle('is-cross', incoming && opacity > 0.03);
+        scenes.forEach((scene) => {
+            const rect = scene.getBoundingClientRect();
+            const raw = Math.min(1, Math.max(0, (vh - rect.top) / vh));
+            const onScreen = rect.bottom > vh * 0.08 && rect.top < vh * 0.95;
             const early = scene.dataset.hero === '1' || scene.classList.contains('scene--pause');
-            scene.classList.toggle('is-readable', current && opacity > 0.55 && (early || raw >= 0.5));
-            const full = scene.querySelector('.media__full.scene__still');
-            if (full) {
-                const shift = (eased - 0.5) * (this.finePointer ? 28 : 16);
-                full.style.transform = `translate3d(0, ${shift.toFixed(1)}px, 0) scale(1.05)`;
-            }
+            scene.classList.toggle('is-current', onScreen && raw > 0.2);
+            scene.classList.toggle('is-readable', onScreen && (early ? raw > 0.12 : raw >= 0.6));
+            // A few percent of zoom and drift on every scene, including a still
+            // whose video seek has not landed yet.
+            const zoom = (1.02 + raw * 0.08).toFixed(3);
+            const shift = ((0.5 - raw) * 8).toFixed(2);
+            scene.querySelectorAll('.media__full, .media__lqip').forEach((img) => {
+                img.style.transform = `translate3d(0, ${shift}%, 0) scale(${zoom})`;
+            });
             const video = scene.querySelector('video.scene__video');
-            if (video) {
-                if ((current || incoming) && opacity > 0.05) {
-                    this.mount(video);
-                    this.seekToProgress(video, current ? eased : 0);
-                } else this.unmount(video);
+            if (!video) return;
+            if (!onScreen) {
+                scene.classList.remove('is-ready');
+                this.unmount(video);
+                return;
             }
-            if (current && raw > 0.35) this.prefetchAhead(scene);
+            this.mount(video);
+            this.seekToProgress(video, raw);
+            const want = video._want;
+            const landed = video.readyState >= 2 && want != null && Number.isFinite(video.currentTime) && Math.abs(video.currentTime - want) < 0.22;
+            scene.classList.toggle('is-ready', landed);
+            if (raw > 0.35) this.prefetchAhead(scene);
         });
         this.syncPaper();
     }
@@ -216,7 +200,7 @@ export default class extends Controller {
         const t = Math.min(Math.max(time, 0), Math.max(video.duration - 0.05, 0));
         video._want = t;
         if (video._seeking) return;
-        if (Math.abs(video.currentTime - t) < 0.08) return;
+        if (Math.abs(video.currentTime - t) < 0.04) return;
         video._seeking = true;
         video._seekAt = performance.now();
         try {
