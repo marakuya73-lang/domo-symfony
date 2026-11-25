@@ -1,8 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 
 /**
- * One gesture, one beat. Sections snap. Copy fades in once a beat has
- * settled and stays until that beat leaves. Videos play only while visible.
+ * Short scroll scenes. The picture shifts and crossfades with the scroll.
+ * Copy arrives near the end of each scene and stays readable there.
  */
 export default class extends Controller {
     static targets = ['scene', 'video', 'story', 'reservas', 'book', 'bookButton', 'bookMenu', 'steps', 'lightbox', 'lightboxImage', 'lightboxVideo'];
@@ -13,17 +13,114 @@ export default class extends Controller {
         this.scrolly = document.documentElement.classList.contains('is-scrolly');
         this.finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         this.applyLang(document.documentElement.lang?.startsWith('en') ? 'en' : 'pt', false);
+        this.warmed = new Set();
         this.observe();
         this.observeReels();
-        if (this.scrolly && this.finePointer) {
-            window.addEventListener('scroll', () => this.queueParallax(), { passive: true });
+        this.onWarmChoice = (event) => {
+            const link = event.target?.closest?.('[data-prefetch]');
+            if (!link) return;
+            link.dataset.prefetch.split(/\s+/).forEach((url) => this.warm(url));
+        };
+        this.element.addEventListener('pointerenter', this.onWarmChoice, true);
+        this.element.addEventListener('touchstart', this.onWarmChoice, { capture: true, passive: true });
+        if (this.scrolly) {
+            this.layout();
+            this.onScroll = () => { this.needsPaint = true; };
+            this.onResize = () => this.layout();
+            window.addEventListener('scroll', this.onScroll, { passive: true });
+            window.addEventListener('resize', this.onResize);
+            this.tick = this.tick.bind(this);
+            this.raf = requestAnimationFrame(this.tick);
+        } else {
+            this.refreshVisibility();
         }
-        this.refreshVisibility();
     }
 
     disconnect() {
+        if (this.raf) cancelAnimationFrame(this.raf);
+        if (this.onScroll) window.removeEventListener('scroll', this.onScroll);
+        if (this.onResize) window.removeEventListener('resize', this.onResize);
         this.observer?.disconnect();
         this.reelObservers?.forEach((observer) => observer.disconnect());
+    }
+
+    layout() {
+        const vh = window.innerHeight || 800;
+        this.sceneTargets.forEach((scene) => {
+            const requested = Number(scene.dataset.travel);
+            const travel = Math.min(Number.isFinite(requested) ? requested : 40, 48);
+            scene.style.height = `${Math.round(vh + vh * (travel / 100))}px`;
+        });
+        this.needsPaint = true;
+    }
+
+    tick() {
+        this.raf = requestAnimationFrame(this.tick);
+        this.paintScroll();
+    }
+
+    paintScroll() {
+        const scenes = this.liveFrames();
+        if (!scenes.length) return;
+        const y = window.scrollY;
+        const vh = window.innerHeight || 800;
+        let active = -1;
+        scenes.forEach((scene, index) => {
+            if (y + vh * 0.25 >= this.docTop(scene)) active = index;
+        });
+        scenes.forEach((scene, index) => {
+            const top = this.docTop(scene);
+            const range = Math.max(1, scene.offsetHeight - vh);
+            const raw = Math.min(1, Math.max(0, (y - top) / range));
+            const shown = scene._shown == null ? raw : scene._shown + (raw - scene._shown) * 0.34;
+            scene._shown = Math.abs(shown - raw) < 0.0015 ? raw : shown;
+            const eased = scene._shown;
+            const current = active >= 0 && index === active;
+            const incoming = active >= 0 && index === active + 1;
+            const previous = scenes[index - 1];
+            const previousEase = previous?._shown ?? 0;
+            let opacity = 0;
+            if (current) opacity = eased < 0.9 ? 1 : Math.max(0, 1 - (eased - 0.9) / 0.1);
+            if (incoming) opacity = previousEase < 0.9 ? 0 : Math.min(1, (previousEase - 0.9) / 0.1);
+            const pin = scene.querySelector('.scene__pin');
+            if (pin) {
+                const visible = opacity > 0.03;
+                pin.style.visibility = visible ? 'visible' : 'hidden';
+                pin.style.opacity = String(opacity);
+                pin.style.zIndex = String(2 + index);
+            }
+            scene.classList.toggle('is-current', current);
+            scene.classList.toggle('is-cross', incoming && opacity > 0.03);
+            const early = scene.dataset.hero === '1' || scene.classList.contains('scene--pause');
+            scene.classList.toggle('is-readable', current && opacity > 0.55 && (early || raw >= 0.5));
+            const full = scene.querySelector('.media__full.scene__still');
+            if (full) {
+                const shift = (eased - 0.5) * (this.finePointer ? 28 : 16);
+                full.style.transform = `translate3d(0, ${shift.toFixed(1)}px, 0) scale(1.05)`;
+            }
+            const video = scene.querySelector('video.scene__video');
+            if (video) {
+                if ((current || incoming) && opacity > 0.2) this.play(video);
+                else this.pause(video);
+            }
+            if (current && raw > 0.35) this.prefetchAhead(scene);
+        });
+        this.syncPaper();
+    }
+
+    liveFrames() {
+        const root = this.activeBranch || this.storyTarget;
+        return root ? [...root.querySelectorAll('.scene')] : [];
+    }
+
+    docTop(node) {
+        let y = 0;
+        let el = node;
+        while (el && el !== document.body && el !== document.documentElement) {
+            y += el.offsetTop;
+            el = el.offsetParent;
+        }
+        return y;
     }
 
     observe() {
@@ -69,7 +166,7 @@ export default class extends Controller {
         if (clip && ratio >= 0.45) this.play(clip);
         else if (clip) this.pause(clip);
         if (ratio >= 0.6) {
-            this.prefetchAfter(node);
+            this.prefetchAhead(node);
             this.markDots();
         }
         this.syncPaper();
@@ -105,20 +202,50 @@ export default class extends Controller {
         if (!video || video.getAttribute('src') || video._loading) return;
         const src = video.dataset.src;
         if (!src) return;
+        if (video.dataset.poster && !video.getAttribute('poster')) video.poster = video.dataset.poster;
         video._loading = true;
-        video.preload = 'auto';
+        video.preload = 'metadata';
         video.src = src;
         video.load();
     }
 
-    prefetchAfter(node) {
-        const next = node.nextElementSibling;
-        if (!next) return;
-        const video = next.querySelector('video[data-src]');
-        if (video) this.ensureSrc(video);
-        next.querySelectorAll('img[loading="lazy"]').forEach((img) => {
-            img.loading = 'eager';
-        });
+    prefetchAhead(node) {
+        let cursor = node;
+        for (let step = 0; step < 2; step += 1) {
+            cursor = this.nextBeat(cursor);
+            if (!cursor) return;
+            cursor.querySelectorAll('img.media__full').forEach((img) => this.warm(this.pickUrl(img)));
+            if (step === 0) {
+                const video = cursor.querySelector('video[data-src]');
+                if (video) this.ensureSrc(video);
+            }
+        }
+    }
+
+    nextBeat(node) {
+        let cursor = node.nextElementSibling;
+        while (cursor && !cursor.matches('.scene, .fork, .hub, .reel')) cursor = cursor.nextElementSibling;
+        return cursor;
+    }
+
+    pickUrl(img) {
+        const width = window.innerWidth;
+        if (width <= 520) return img.dataset.w480 || img.dataset.w828;
+        if (width <= 1100) return img.dataset.w828 || img.dataset.w1280;
+        return img.dataset.w1280 || img.dataset.w828;
+    }
+
+    warm(url) {
+        if (!url || this.warmed.has(url)) return;
+        this.warmed.add(url);
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = url;
+        document.head.appendChild(link);
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = url;
     }
 
     queueParallax() {
@@ -127,7 +254,7 @@ export default class extends Controller {
             this.parallaxFrame = 0;
             const root = this.activeBranch || this.storyTarget;
             root?.querySelectorAll('.scene').forEach((scene) => {
-                const still = scene.querySelector('.scene__still');
+                const still = scene.querySelector('.media__full.scene__still');
                 if (!still) return;
                 const shift = (scene.getBoundingClientRect().top / window.innerHeight) * 12;
                 still.style.transform = `translate3d(0, ${shift.toFixed(1)}px, 0) scale(1.04)`;
@@ -332,8 +459,8 @@ export default class extends Controller {
         }
         if (!id) {
             if (restore && this.savedScroll != null) window.scrollTo(0, this.savedScroll);
+            this.layout();
             this.renderDots();
-            this.refreshVisibility();
             return;
         }
         const branch = this.element.querySelector(`#branch-${CSS.escape(id)}`);
@@ -344,7 +471,8 @@ export default class extends Controller {
         document.documentElement.classList.add('is-branch-open');
         branch.classList.add('is-open');
         window.scrollTo(0, 0);
+        this.layout();
+        branch.querySelectorAll('.scene').forEach((scene) => { scene._shown = null; });
         this.renderDots();
-        this.refreshVisibility();
     }
 }
