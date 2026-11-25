@@ -100,6 +100,15 @@
         </div>
     </div>
 
+    {% for branch in branches %}
+        <div class="branch" id="branch-{{ branch.id }}" data-branch="{{ branch.id }}" aria-label="{{ branch.labelPt }}" data-alt-pt="{{ branch.labelPt }}" data-alt-en="{{ branch.labelEn }}">
+            {% include 'experience/_stage.html.twig' with {stage: branchStages[branch.id]} %}
+            <div class="beats">
+                {% include 'experience/_beats.html.twig' with {beats: branch.beats} %}
+            </div>
+        </div>
+    {% endfor %}
+
     <section id="reservas" class="reservas" data-experience-target="reservas" tabindex="-1">
         <div class="reservas__wrap">
             <div class="reservas__book">
@@ -119,7 +128,7 @@
                     <a href="{{ links.airbnb }}" target="_blank" rel="noopener noreferrer">Airbnb</a>
                 </p>
                 <p class="paper-links">
-                    <a href="#hub-break"><span class="t-pt">Voltar às escolhas ↺</span><span class="t-en">Back to choices ↺</span></a>
+                    <a href="#hub-break" data-action="experience#leaveBranch"><span class="t-pt">Voltar às escolhas ↺</span><span class="t-en">Back to choices ↺</span></a>
                 </p>
             </div>
 
@@ -153,15 +162,6 @@
             <p class="colophon">Domo Xangô, Alto Paraíso de Goiás, Chapada dos Veadeiros</p>
         </div>
     </section>
-
-    {% for branch in branches %}
-        <div class="branch" id="branch-{{ branch.id }}" data-branch="{{ branch.id }}" aria-label="{{ branch.labelPt }}" data-alt-pt="{{ branch.labelPt }}" data-alt-en="{{ branch.labelEn }}">
-            {% include 'experience/_stage.html.twig' with {stage: branchStages[branch.id]} %}
-            <div class="beats">
-                {% include 'experience/_beats.html.twig' with {beats: branch.beats} %}
-            </div>
-        </div>
-    {% endfor %}
 
 </main>
 {% endblock %}

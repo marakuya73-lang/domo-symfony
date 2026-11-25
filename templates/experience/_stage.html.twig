@@ -1,18 +1,20 @@
 <section
-    class="stage"
+    class="stage{{ stage.stream ? ' stage--stream' : '' }}"
     id="stage-{{ stage.id }}"
     data-stage="{{ stage.id }}"
     data-px="{{ stage.px }}"
     data-frames="{{ stage.frames }}"
     data-sequence="{{ stage.sequence|e('html_attr') }}"
+    {% if stage.stream %}data-stream="1"{% endif %}
+    {% if stage.poster %}data-poster="{{ stage.poster }}"{% endif %}
 >
     <div class="stage__sticky" style="background-color: {{ stage.color }}">
         <canvas class="stage__canvas"></canvas>
-        <div class="stage__veil" style="background-color: {{ stage.color }}; background-image: url('{{ stage.lqip }}')"></div>
+        <div class="stage__veil" style="background-color: {{ stage.color }}; background-image: url('{{ stage.poster ?: stage.lqip }}')"></div>
         <div class="stage__shade" aria-hidden="true"></div>
         <div class="stage__cues">
             {% for cue in stage.cues %}
-                <div class="stage__cue stage__cue--{{ cue.align }}{{ cue.hero ? ' stage__cue--hero' : '' }}" data-from="{{ cue.from }}" data-to="{{ cue.to }}">
+                <div class="stage__cue stage__cue--{{ cue.align }}{{ cue.hero ? ' stage__cue--hero' : '' }}{{ cue.middle ? ' stage__cue--middle' : '' }}" data-from="{{ cue.from }}" data-to="{{ cue.to }}"{% if cue.hold %} data-hold="1"{% endif %}>
                     {% if cue.kickerPt %}
                         <p class="kicker"><span class="t-pt">{{ cue.kickerPt }}</span><span class="t-en">{{ cue.kickerEn }}</span></p>
                     {% endif %}

@@ -117,8 +117,8 @@ final class ExperienceControllerTest extends WebTestCase
         $reservasAt = strpos($html, 'id="reservas"');
         $branchAt = strpos($html, 'id="branch-estadia"');
         self::assertIsInt($hubAt);
-        self::assertLessThan($reservasAt, $hubAt);
-        self::assertLessThan($branchAt, $reservasAt);
+        self::assertLessThan($branchAt, $hubAt);
+        self::assertLessThan($reservasAt, $branchAt);
         self::assertStringNotContainsString('Silêncio para dois', $html);
         self::assertStringContainsString('data-src="/media/experience/01_hero.mp4"', $html);
         self::assertStringContainsString('preload="none"', $html);

@@ -36,6 +36,18 @@ export default class StageScrub {
             this.pendingRelease = null;
             this.needsBoot = false;
         });
+        this.watchChoices();
+    }
+
+    watchChoices() {
+        const hub = this.root.querySelector('#hub-break');
+        if (!hub) return;
+        this.choiceObserver = new IntersectionObserver((entries) => {
+            if (!entries.some((entry) => entry.isIntersecting)) return;
+            ['estadia', 'retiro', 'jornada'].forEach((id) => this.prime(id));
+            this.choiceObserver.disconnect();
+        }, { rootMargin: '320px' });
+        this.choiceObserver.observe(hub);
     }
 
     hold() {
@@ -53,6 +65,7 @@ export default class StageScrub {
     stop() {
         this.pendingRelease?.();
         this.pendingRelease = null;
+        this.choiceObserver?.disconnect();
         if (this.raf) cancelAnimationFrame(this.raf);
         window.removeEventListener('scroll', this.onScroll);
         window.removeEventListener('resize', this.onResize);
@@ -68,8 +81,12 @@ export default class StageScrub {
         this.layout();
         this.drawn = this.target();
         if (!next.classList.contains('is-live')) {
-            const release = this.hold();
-            this.boot(next).finally(release);
+            if (next.dataset.stream === '1') {
+                this.boot(next);
+            } else {
+                const release = this.hold();
+                this.boot(next).finally(release);
+            }
         }
         this.dirty = true;
     }
@@ -78,7 +95,9 @@ export default class StageScrub {
         const stage = this.root.querySelector(`#branch-${CSS.escape(branchId)} [data-stage]`);
         if (!stage) return;
         const state = this.bind(stage);
-        this.ensure(state.clips[0]);
+        this.preparePoster(stage);
+        const first = state.clips[0];
+        this.warmClip(first, first.preview || 24);
     }
 
     bind(stage) {
@@ -145,9 +164,20 @@ export default class StageScrub {
     boot(stage) {
         const state = this.bind(stage);
         const first = state.clips[0];
+        if (stage.dataset.stream === '1') {
+            const poster = this.preparePoster(stage);
+            const ready = poster ? this.whenImage(poster) : Promise.resolve();
+            return ready.then(() => {
+                this.paintStage(stage);
+                stage.classList.add('is-live');
+                return this.warmClip(first, first.preview || 24);
+            }).then(() => this.ensure(first)).catch(() => {
+                stage.classList.add('is-live');
+            });
+        }
         return this.ensure(first).then(() => {
             if (first.kind === 'frames') {
-                const img = this.image(stage, first, 0);
+                const img = this.frameImage(first, 0);
                 if (img && typeof img.decode === 'function') return img.decode().catch(() => {});
             }
         }).then(() => {
@@ -210,7 +240,10 @@ export default class StageScrub {
             }
             const base = Math.floor(layer.local);
             for (let i = base - 1; i <= base + 8; i += 1) {
-                if (i >= 0 && i < clip.frames && clip.blobs?.[i]) this.image(this.stage, clip, i);
+                const full = clip.blobs?.[i];
+                const small = full ? null : clip.small?.[i];
+                const src = full || small;
+                if (i >= 0 && i < clip.frames && src) this.image(this.stage, clip, i, src, full ? 'f' : 's');
             }
         });
     }
@@ -220,7 +253,14 @@ export default class StageScrub {
         const ctx = canvas.getContext('2d', { alpha: false });
         if (!ctx || !canvas.width) return;
         const prepared = this.layers(this.drawn).map((layer) => this.prepare(layer)).filter(Boolean);
-        if (!prepared.length) return;
+        if (!prepared.length) {
+            const poster = this.preparePoster(this.stage);
+            if (!poster || !poster.complete || !poster.naturalWidth) return;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.globalAlpha = 1;
+            this.cover(ctx, poster, 1, 1, 0);
+            return;
+        }
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.globalAlpha = 1;
         ctx.fillStyle = this.stage.querySelector('.stage__sticky')?.style.backgroundColor || '#14110e';
@@ -261,8 +301,11 @@ export default class StageScrub {
     }
 
     frameImage(clip, index) {
-        if (!clip.blobs?.[index]) return null;
-        const img = this.image(this.stage, clip, index);
+        const full = clip.blobs?.[index];
+        const small = !full ? clip.small?.[index] : null;
+        const src = full || small;
+        if (!src) return null;
+        const img = this.image(this.stage, clip, index, src, full ? 'f' : 's');
         if (!img || !img.complete || !img.naturalWidth) return null;
         return img;
     }
@@ -288,9 +331,15 @@ export default class StageScrub {
             const u = (progress - from) / span;
             const fade = 0.16;
             const lead = from < 0.01 ? 0 : fade;
+            const hold = cue.dataset.hold === '1';
             let opacity = 0;
             let y = 18;
-            if (u >= 0 && u <= 1) {
+            if (hold && progress >= from) {
+                const spanIn = 0.012;
+                const t = from < 0.01 ? 1 : Math.min(1, (progress - from) / spanIn);
+                opacity = t;
+                y = 18 * (1 - t);
+            } else if (u >= 0 && u <= 1) {
                 if (lead > 0 && u < lead) {
                     opacity = u / lead;
                     y = 18 * (1 - opacity);
@@ -302,7 +351,9 @@ export default class StageScrub {
                     y = 0;
                 }
             }
-            const shift = cue.classList.contains('stage__cue--center') ? 'translateX(-50%) ' : '';
+            const center = cue.classList.contains('stage__cue--center');
+            const middle = cue.classList.contains('stage__cue--middle');
+            const shift = center && middle ? 'translate(-50%, -50%) ' : center ? 'translateX(-50%) ' : middle ? 'translateY(-50%) ' : '';
             cue.style.opacity = String(opacity);
             cue.style.transform = `${shift}translate3d(0, ${y.toFixed(2)}px, 0)`;
             cue.style.pointerEvents = opacity > 0.8 ? 'auto' : 'none';
@@ -327,53 +378,106 @@ export default class StageScrub {
 
     ensure(clip) {
         if (!clip) return Promise.resolve();
-        if (clip.kind === 'still') {
-            if (!clip.done) {
-                clip.done = new Promise((resolve) => {
-                    const img = this.image(this.stage || this.visible(), clip, 0);
-                    if (!img) { resolve(); return; }
-                    if (img.complete && img.naturalWidth) { clip.ready = true; resolve(); return; }
-                    img.addEventListener('load', () => { clip.ready = true; resolve(); }, { once: true });
-                    img.addEventListener('error', () => resolve(), { once: true });
-                });
-            }
-            return clip.done;
-        }
-        if (clip.done) return clip.done;
-        clip.blobs = new Array(clip.frames);
+        if (clip.kind === 'still') return this.whenStill(clip);
+        if (clip.fullDone) return clip.fullDone;
+        if (!clip.blobs) clip.blobs = new Array(clip.frames);
         const jobs = [];
-        for (let i = 0; i < clip.frames; i += 1) {
-            const index = i;
-            jobs.push(() => fetch(this.url(clip, index)).then((response) => {
-                if (!response.ok) throw new Error(String(response.status));
-                return response.blob();
-            }).then((blob) => {
-                clip.blobs[index] = URL.createObjectURL(blob);
-            }));
+        for (let i = 0; i < clip.frames; i += 1) jobs.push(() => this.fetchInto(clip, i, 'full'));
+        clip.fullDone = this.pool(jobs, 4).then(() => { clip.ready = true; });
+        return clip.fullDone;
+    }
+
+    warmClip(clip, count) {
+        if (!clip || clip.kind !== 'frames') return this.ensure(clip);
+        const limit = Math.min(count, clip.frames);
+        const tier = clip.s ? 's' : 'full';
+        if (tier === 's' && !Array.isArray(clip.small)) clip.small = new Array(clip.frames);
+        if (tier === 'full' && !Array.isArray(clip.blobs)) clip.blobs = new Array(clip.frames);
+        const jobs = [];
+        for (let i = 0; i < limit; i += 1) jobs.push(() => this.fetchInto(clip, i, tier));
+        return this.pool(jobs, 6);
+    }
+
+    fetchInto(clip, index, tier) {
+        const slot = tier === 's' ? 'small' : 'blobs';
+        const marks = tier === 's' ? 'smallJobs' : 'fullJobs';
+        if (!clip[slot]) clip[slot] = new Array(clip.frames);
+        if (clip[slot][index]) return Promise.resolve();
+        if (!clip[marks]) clip[marks] = [];
+        if (clip[marks][index]) return clip[marks][index];
+        const pending = fetch(this.url(clip, index, tier)).then((response) => {
+            if (!response.ok) throw new Error(String(response.status));
+            return response.blob();
+        }).then((blob) => {
+            clip[slot][index] = URL.createObjectURL(blob);
+        }).catch(() => {
+            clip[marks][index] = null;
+        });
+        clip[marks][index] = pending;
+        return pending;
+    }
+
+    url(clip, index, tier = 'full') {
+        const base = tier === 's' ? clip.s : (this.desktop ? clip.d : clip.m);
+        const file = index + 1 + (clip.offset || 0);
+        return `${base}/${String(file).padStart(4, '0')}.webp`;
+    }
+
+    preparePoster(stage) {
+        const src = stage?.dataset?.poster;
+        if (!src) return null;
+        if (!stage._poster) {
+            const img = new Image();
+            img.decoding = 'async';
+            img.src = src;
+            stage._poster = img;
         }
-        clip.done = this.pool(jobs, 6).then(() => { clip.ready = true; });
+        return stage._poster;
+    }
+
+    whenImage(img) {
+        if (img.complete && img.naturalWidth) return Promise.resolve();
+        return new Promise((resolve) => {
+            img.addEventListener('load', () => resolve(), { once: true });
+            img.addEventListener('error', () => resolve(), { once: true });
+        });
+    }
+
+    whenStill(clip) {
+        if (!clip.done) {
+            clip.done = new Promise((resolve) => {
+                const img = this.image(this.stage || this.visible(), clip, 0, clip.src, 'still');
+                if (!img) { resolve(); return; }
+                this.whenImage(img).then(() => { clip.ready = true; resolve(); });
+            });
+        }
         return clip.done;
     }
 
-    url(clip, index) {
-        const base = this.desktop ? clip.d : clip.m;
-        return `${base}/${String(index + 1).padStart(4, '0')}.webp`;
+    paintStage(stage) {
+        const previous = this.stage;
+        this.stage = stage;
+        this.state = this.bind(stage);
+        this.resizeCanvas();
+        this.paint();
+        this.stage = previous;
+        if (previous) this.state = this.bind(previous);
     }
 
-    image(stage, clip, index) {
+    image(stage, clip, index, src = null, tier = 'f') {
         if (!stage || !clip) return null;
-        const key = `${stage.dataset.stage}:${clip.id}:${index}:${this.desktop ? 'd' : 'm'}`;
+        const key = `${stage.dataset.stage}:${clip.id}:${index}:${tier}:${this.desktop ? 'd' : 'm'}`;
         if (this.cache.has(key)) {
             const existing = this.cache.get(key);
             this.cache.delete(key);
             this.cache.set(key, existing);
             return existing;
         }
-        const src = clip.kind === 'still' ? clip.src : clip.blobs?.[index];
-        if (!src) return null;
+        const resolved = src || (clip.kind === 'still' ? clip.src : null);
+        if (!resolved) return null;
         const img = new Image();
         img.decoding = 'async';
-        img.src = src;
+        img.src = resolved;
         this.cache.set(key, img);
         while (this.cache.size > this.cacheLimit) {
             const oldest = this.cache.keys().next().value;
@@ -403,7 +507,7 @@ export default class StageScrub {
     }
 
     releaseClip(stage, clip) {
-        if (!clip || clip.kind !== 'frames' || !clip.blobs) return;
+        if (!clip || clip.kind !== 'frames') return;
         const prefix = `${stage.dataset.stage}:${clip.id}:`;
         [...this.cache.keys()].forEach((key) => {
             if (!key.startsWith(prefix)) return;
@@ -411,8 +515,13 @@ export default class StageScrub {
             this.cache.delete(key);
             if (img) img.src = '';
         });
-        clip.blobs.forEach((url) => { if (url) URL.revokeObjectURL(url); });
+        (clip.blobs || []).forEach((url) => { if (url) URL.revokeObjectURL(url); });
+        (clip.small || []).forEach((url) => { if (typeof url === 'string') URL.revokeObjectURL(url); });
         clip.blobs = null;
+        clip.small = null;
+        clip.fullDone = null;
+        clip.fullJobs = null;
+        clip.smallJobs = null;
         clip.ready = false;
         clip.done = null;
     }

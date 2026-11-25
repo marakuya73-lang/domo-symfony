@@ -106,7 +106,7 @@ final class ExperienceCatalog
                 titlePt: 'O que você busca?',
                 titleEn: 'What are you looking for?',
                 cards: [
-                    new HubCard('#branch-estadia', 'Estadia', 'Stay', 'v5/stay-2.jpg', 'Cama e a vista a partir do domo', 'The bed and the view from the dome', 'Dormir no silêncio da Chapada.', 'Sleep in the quiet of Chapada.', 'estadia'),
+                    new HubCard('#branch-estadia', 'Estadia', 'Stay', 'posters/03a_orbit-mid.jpg', 'O domo diante do vale', 'The dome before the valley', 'Dormir no silêncio da Chapada.', 'Sleep in the quiet of Chapada.', 'estadia'),
                     new HubCard('#branch-retiro', 'Retiro', 'Retreat', 'v7/retiro-circle.jpg', 'Círculo no domo, aberto para o vale', 'A circle in the dome, open to the valley', 'Trazer o seu círculo. Até 23 pessoas.', 'Bring your circle. Up to 23 people.', 'retiro'),
                     new HubCard('#branch-jornada', 'Jornada com Rajaaram', 'Journey with Rajaaram', 'v5/journey-1.jpg', 'Incenso no espaço de cura do Rajaaram', 'Incense in Rajaaram\'s healing space', 'Cerimônias e massagens, no mesmo chão.', 'Ceremonies and massages, on the same land.', 'jornada'),
                 ],
